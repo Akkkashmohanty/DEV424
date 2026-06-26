@@ -1,0 +1,15 @@
+{
+  "name": "farmgym",
+  "private": true,
+  "packageManager": "npm@11.15.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check"
+  }
+}

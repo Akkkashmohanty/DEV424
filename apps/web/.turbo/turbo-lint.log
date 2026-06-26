@@ -1,0 +1,143 @@
+
+> web@0.1.0 lint
+> eslint
+
+
+G:\farmgym\apps\web\src\app\error.tsx
+  4:3  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\auth\protected-route.tsx
+  19:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+G:\farmgym\apps\web\src\components\auth\protected-route.tsx:19:5
+  17 |
+  18 |   useEffect(() => {
+> 19 |     setHydrated(true)
+     |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  20 |   }, [])
+  21 |
+  22 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+G:\farmgym\apps\web\src\components\community\challenges\challenge-card.tsx
+  2:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\components\community\posts\post-card.tsx
+  11:9  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\components\dashboard\badges\badge-grid.tsx
+  54:17  warning  'isLocked' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  55:17  warning  'isInProgress' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\dashboard\water\water-usage-card.tsx
+  3:10  warning  'Droplet' is defined but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\dashboard\widgets\progress-ring.tsx
+  29:12  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  29:46  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+G:\farmgym\apps\web\src\components\donation\cards\ngo-card.tsx
+  2:8  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\components\learning\cards\video-card.tsx
+  25:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+G:\farmgym\apps\web\src\components\learning\filters\video-filters.tsx
+  4:18  warning  'Filter' is defined but never used   @typescript-eslint/no-unused-vars
+  4:26  warning  'Compass' is defined but never used  @typescript-eslint/no-unused-vars
+  4:35  warning  'Sprout' is defined but never used   @typescript-eslint/no-unused-vars
+  4:43  warning  'Globe' is defined but never used    @typescript-eslint/no-unused-vars
+  4:50  warning  'Check' is defined but never used    @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\learning\player\video-player.tsx
+   4:16  warning  'Pause' is defined but never used                 @typescript-eslint/no-unused-vars
+  10:39  warning  'url' is defined but never used                   @typescript-eslint/no-unused-vars
+  12:20  warning  'setProgress' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\marketplace\cards\product-card.tsx
+  26:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+G:\farmgym\apps\web\src\components\marketplace\cart\cart-item.tsx
+  4:31  warning  'ShieldAlert' is defined but never used   @typescript-eslint/no-unused-vars
+  8:9   error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\components\marketplace\checkout\order-summary.tsx
+  4:10  warning  'useRouter' is defined but never used  @typescript-eslint/no-unused-vars
+  6:10  warning  'Tag' is defined but never used        @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\marketplace\checkout\payment-button.tsx
+  4:16  warning  'CreditCard' is defined but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\marketplace\filters\product-filters.tsx
+  4:37  warning  'ChevronDown' is defined but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\marketplace\reviews\reviews-section.tsx
+  3:26  warning  'Award' is defined but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\marketplace\seller\seller-dashboard.tsx
+   3:8  warning  'Link' is defined but never used                   @typescript-eslint/no-unused-vars
+   5:3  warning  'Plus' is defined but never used                   @typescript-eslint/no-unused-vars
+   6:3  warning  'Sprout' is defined but never used                 @typescript-eslint/no-unused-vars
+   7:3  warning  'ShoppingBag' is defined but never used            @typescript-eslint/no-unused-vars
+   8:3  warning  'Edit3' is defined but never used                  @typescript-eslint/no-unused-vars
+   9:3  warning  'Trash2' is defined but never used                 @typescript-eslint/no-unused-vars
+  10:3  warning  'AlertCircle' is defined but never used            @typescript-eslint/no-unused-vars
+  13:7  warning  'stats' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  40:7  warning  'recentOrders' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  67:7  warning  'listingsList' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\planner\analytics\crop-health-card.tsx
+  3:10  warning  'Activity' is defined but never used     @typescript-eslint/no-unused-vars
+  3:20  warning  'Thermometer' is defined but never used  @typescript-eslint/no-unused-vars
+  3:33  warning  'Droplet' is defined but never used      @typescript-eslint/no-unused-vars
+  3:42  warning  'Sun' is defined but never used          @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\planner\calendar\planting-calendar.tsx
+   4:47  warning  'Sprout' is defined but never used                    @typescript-eslint/no-unused-vars
+   4:55  warning  'Award' is defined but never used                     @typescript-eslint/no-unused-vars
+   4:62  warning  'HelpCircle' is defined but never used                @typescript-eslint/no-unused-vars
+  22:24  warning  'setCurrentMonth' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\components\planner\reminders\reminder-list.tsx
+    4:46  warning  'Calendar' is defined but never used      @typescript-eslint/no-unused-vars
+  142:65  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\components\sections\problem-solution-section.tsx
+  1:23  warning  'CheckCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+G:\farmgym\apps\web\src\features\marketplace\cart\cart-item.tsx
+  8:9  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\features\marketplace\checkout\payment-button.tsx
+  5:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\features\planner\hooks\use-planner.ts
+  39:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\hooks\use-auth.ts
+  19:5   warning  'password' is defined but never used      @typescript-eslint/no-unused-vars
+  27:12  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:12  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+G:\farmgym\apps\web\src\middleware.ts
+  4:28  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 55 problems (13 errors, 42 warnings)
+
+npm error Lifecycle script `lint` failed with error:
+npm error code 1
+npm error path G:\farmgym\apps\web
+npm error workspace web@0.1.0
+npm error location G:\farmgym\apps\web
+npm error command failed
+npm error command cmd.exe /d /s /c eslint
+npm notice
+npm notice New minor version of npm available! 11.11.0 -> 11.17.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+npm notice To update run: npm install -g npm@11.17.0
+npm notice
