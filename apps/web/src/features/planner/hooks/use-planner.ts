@@ -9,10 +9,6 @@ import {
 import { plannerApi } from "../api/planner.api"
 
 import {
-  CreateTaskPayload,
-} from "../api/planner.api"
-
-import {
   UpdateTaskPayload,
 } from "../types/planner.types"
 
@@ -32,6 +28,10 @@ export function useCreateTask() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["tasks"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
       })
     },
   })
@@ -57,6 +57,10 @@ export function useUpdateTask() {
       queryClient.invalidateQueries({
         queryKey: ["tasks"],
       })
+
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      })
     },
   })
 }
@@ -71,6 +75,13 @@ export function useDeleteTask() {
       queryClient.invalidateQueries({
         queryKey: ["tasks"],
       })
+
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard-summary"],
+      })
     },
   })
 }
+
+
+

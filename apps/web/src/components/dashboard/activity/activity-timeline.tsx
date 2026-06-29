@@ -1,64 +1,99 @@
 "use client"
 
-import { CheckCircle2, Circle, Calendar } from "lucide-react"
+import {
+  Calendar,
+  PlusCircle,
+  CheckCircle2,
+  Trash2,
+} from "lucide-react"
 
-import { useTasks } from "@/features/planner/hooks/use-planner"
-import { Task } from "@/features/planner/types/planner.types"
+import { useActivities } from "@/features/activity/hooks/use-activities"
+import { Activity } from "@/features/activity/types/activity.types"
+
+function ActivityIcon({
+  action,
+}: {
+  action: string
+}) {
+  switch (action) {
+    case "TASK_CREATED":
+      return (
+        <PlusCircle className="h-5 w-5 text-blue-600" />
+      )
+
+    case "TASK_COMPLETED":
+      return (
+        <CheckCircle2 className="h-5 w-5 text-green-600" />
+      )
+
+    case "TASK_DELETED":
+      return (
+        <Trash2 className="h-5 w-5 text-red-600" />
+      )
+
+    default:
+      return (
+        <Calendar className="h-5 w-5" />
+      )
+  }
+}
 
 export default function ActivityTimeline() {
   const {
-    data: tasks,
+    data: activities = [],
     isLoading,
-  } = useTasks()
+  } = useActivities()
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-xl font-bold tracking-tight">
-          Recent Tasks
+        <h3 className="text-xl font-bold">
+          Recent Activity
         </h3>
 
-        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Calendar className="h-3.5 w-3.5" />
-          Live From Planner
+        <span className="text-xs text-muted-foreground">
+          Live Activity Feed
         </span>
       </div>
 
       {isLoading && (
         <p className="text-sm text-muted-foreground">
-          Loading tasks...
+          Loading activities...
         </p>
       )}
 
-      <div className="space-y-4">
-        {tasks?.slice(0, 5).map((task: Task) => (
-          <div
-            key={task.id}
-            className="flex items-center justify-between rounded-xl border p-3"
-          >
-            <div className="flex items-center gap-3">
-              {task.completed ? (
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-              ) : (
-                <Circle className="h-5 w-5" />
-              )}
+      {!isLoading &&
+        activities.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            No activity yet.
+          </p>
+        )}
 
-              <div>
+      <div className="space-y-4">
+        {activities.map(
+          (activity: Activity) => (
+            <div
+              key={activity.id}
+              className="flex items-center gap-4 rounded-xl border p-3"
+            >
+              <ActivityIcon
+                action={activity.action}
+              />
+
+              <div className="flex-1">
                 <p className="font-medium">
-                  {task.title}
+                  {activity.description}
                 </p>
 
                 <p className="text-xs text-muted-foreground">
-                  {task.crop_name}
+                  {new Date(
+                    activity.created_at,
+                  ).toLocaleString()}
                 </p>
               </div>
             </div>
-
-            <span className="text-xs text-muted-foreground">
-              {task.priority}
-            </span>
-          </div>
-        ))}
+          ),
+        )}
       </div>
     </div>
   )

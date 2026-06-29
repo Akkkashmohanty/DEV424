@@ -3,13 +3,19 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
 from app.db.database import get_db
+
 from app.models.user import User
+
 from app.repositories.task_repository import TaskRepository
+from app.repositories.user_repository import UserRepository
+from app.repositories.activity_repository import ActivityRepository
+
 from app.schemas.task import (
     TaskCreate,
     TaskUpdate,
     TaskResponse,
 )
+
 from app.services.task_service import TaskService
 
 router = APIRouter(
@@ -21,10 +27,15 @@ router = APIRouter(
 def get_task_service(
     db: Session,
 ) -> TaskService:
+    task_repository = TaskRepository(db)
+    user_repository = UserRepository(db)
+    activity_repository = ActivityRepository(db)
 
-    repository = TaskRepository(db)
-
-    return TaskService(repository)
+    return TaskService(
+        task_repository,
+        user_repository,
+        activity_repository,
+    )
 
 
 @router.post(
@@ -34,9 +45,7 @@ def get_task_service(
 def create_task(
     payload: TaskCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user,
-    ),
+    current_user: User = Depends(get_current_user),
 ):
     service = get_task_service(db)
 
@@ -52,9 +61,7 @@ def create_task(
 )
 def list_tasks(
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user,
-    ),
+    current_user: User = Depends(get_current_user),
 ):
     service = get_task_service(db)
 
@@ -70,9 +77,7 @@ def list_tasks(
 def get_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user,
-    ),
+    current_user: User = Depends(get_current_user),
 ):
     service = get_task_service(db)
 
@@ -90,9 +95,7 @@ def update_task(
     task_id: int,
     payload: TaskUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user,
-    ),
+    current_user: User = Depends(get_current_user),
 ):
     service = get_task_service(db)
 
@@ -109,9 +112,7 @@ def update_task(
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user,
-    ),
+    current_user: User = Depends(get_current_user),
 ):
     service = get_task_service(db)
 
@@ -121,5 +122,5 @@ def delete_task(
     )
 
     return {
-        "message": "Task deleted successfully"
+        "message": "Task deleted successfully",
     }

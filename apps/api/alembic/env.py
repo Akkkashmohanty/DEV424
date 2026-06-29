@@ -10,6 +10,8 @@ from app.db.base import Base
 
 import app.models.user
 import app.models.task
+import app.models.activity_log
+import app.models.notification
 
 config = context.config
 
