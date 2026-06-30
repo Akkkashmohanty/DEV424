@@ -9,6 +9,9 @@ from app.api.v1.activity_routes import router as activity_router
 from app.api.v1.notification_routes import (
     router as notification_router,
 )
+from app.api.v1.analytics_routes import (
+    router as analytics_router,
+)
 
 
 app = FastAPI(
@@ -53,6 +56,11 @@ app.include_router(
 
 app.include_router(
     notification_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    analytics_router,
     prefix="/api/v1",
 )
 
