@@ -16,13 +16,15 @@ export default async function ProductPage({
 }: Props) {
   const { productId } = await params
 
+  const id = Number(productId)
+
   const product = products.find(
-    (item) => item.id === productId,
+    (item) => item.id === id,
   )
 
   if (!product) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="flex min-h-screen items-center justify-center">
         <h1 className="text-3xl font-bold">
           Product Not Found
         </h1>
@@ -36,8 +38,11 @@ export default async function ProductPage({
         <div className="grid gap-10 lg:grid-cols-2">
           <div className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-card">
             <Image
-              src={product.image}
-              alt={product.title}
+              src={
+                product.image_url ??
+                "/images/product-placeholder.png"
+              }
+              alt={product.name}
               fill
               className="object-cover"
             />
@@ -49,20 +54,16 @@ export default async function ProductPage({
             </span>
 
             <h1 className="mt-4 text-5xl font-bold">
-              {product.title}
+              {product.name}
             </h1>
 
             <p className="mt-6 text-lg text-muted-foreground">
               {product.description}
             </p>
 
-            <div className="mt-8 flex items-center gap-6">
+            <div className="mt-8">
               <span className="text-4xl font-bold text-green-600">
                 ₹{product.price}
-              </span>
-
-              <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-sm font-semibold text-yellow-600">
-                ⭐ {product.rating}
               </span>
             </div>
 
@@ -77,9 +78,8 @@ export default async function ProductPage({
             </div>
 
             <div className="mt-8 space-y-2 text-sm text-muted-foreground">
-              <p>Seller: {product.seller}</p>
+              <p>Seller ID: {product.seller_id}</p>
               <p>Stock Available: {product.stock}</p>
-              <p>{product.reviews} Reviews</p>
             </div>
           </div>
         </div>

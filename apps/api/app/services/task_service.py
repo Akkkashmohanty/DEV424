@@ -4,6 +4,7 @@ from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.activity_repository import ActivityRepository
 from app.repositories.notification_repository import NotificationRepository
+from app.repositories.achievement_repository import AchievementRepository
 
 from app.schemas.task import (
     TaskCreate,
@@ -30,12 +31,15 @@ class TaskService:
         user_repository: UserRepository,
         activity_repository: ActivityRepository,
         notification_repository: NotificationRepository,
+        achievement_repository: AchievementRepository,
     ):
         self.repository = repository
+
         self.user_repository = user_repository
 
         self.gamification = GamificationService(
             user_repository,
+            achievement_repository,
         )
 
         self.activity = ActivityService(
@@ -165,4 +169,3 @@ class TaskService:
             title="Task Deleted",
             message=f"Task '{task.title}' was deleted.",
         )
-

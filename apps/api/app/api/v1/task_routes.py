@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -13,6 +12,9 @@ from app.repositories.activity_repository import ActivityRepository
 from app.repositories.notification_repository import (
     NotificationRepository,
 )
+from app.repositories.achievement_repository import (
+    AchievementRepository,
+)
 
 from app.schemas.task import (
     TaskCreate,
@@ -21,6 +23,7 @@ from app.schemas.task import (
 )
 
 from app.services.task_service import TaskService
+
 
 router = APIRouter(
     prefix="/tasks",
@@ -39,11 +42,14 @@ def get_task_service(
 
     notification_repository = NotificationRepository(db)
 
+    achievement_repository = AchievementRepository(db)
+
     return TaskService(
         task_repository,
         user_repository,
         activity_repository,
         notification_repository,
+        achievement_repository,
     )
 
 

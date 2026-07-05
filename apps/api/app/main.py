@@ -13,6 +13,14 @@ from app.api.v1.analytics_routes import (
     router as analytics_router,
 )
 
+from app.api.v1.achievement_routes import (
+    router as achievement_router,
+)
+
+from app.api.v1.product_routes import (
+    router as product_router,
+)
+
 
 app = FastAPI(
     title="FarmGym API",
@@ -61,6 +69,16 @@ app.include_router(
 
 app.include_router(
     analytics_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    achievement_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    product_router,
     prefix="/api/v1",
 )
 

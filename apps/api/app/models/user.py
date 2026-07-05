@@ -1,7 +1,16 @@
 from datetime import datetime
 
-from sqlalchemy import String, Integer, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import (
+    DateTime,
+    Integer,
+    String,
+)
+
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    relationship,
+)
 
 from app.db.base import Base
 
@@ -48,4 +57,10 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
+    )
+
+    orders = relationship(
+        "Order",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )

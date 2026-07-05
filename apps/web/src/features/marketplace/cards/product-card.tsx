@@ -3,11 +3,11 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { Product } from "@/features/marketplace/types/product.types"
+import { Heart, ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
-import { Heart, ShoppingCart } from "lucide-react"
+import { Product } from "@/features/marketplace/types/product.types"
 
 import { useCartStore } from "@/features/marketplace/store/cart.store"
 import { useWishlistStore } from "@/features/marketplace/store/wishlist.store"
@@ -27,10 +27,13 @@ export default function ProductCard({
   return (
     <div className="group overflow-hidden rounded-3xl border bg-card transition hover:-translate-y-1 hover:shadow-xl">
       <Link href={`/marketplace/${product.id}`}>
-        <div className="relative aspect-square overflow-hidden">
+        <div className="relative aspect-square overflow-hidden bg-muted">
           <Image
-            src={product.image}
-            alt={product.title}
+            src={
+              product.image_url ??
+              "/images/product-placeholder.png"
+            }
+            alt={product.name}
             fill
             className="object-cover transition duration-300 group-hover:scale-105"
           />
@@ -43,20 +46,12 @@ export default function ProductCard({
         </p>
 
         <h3 className="mt-2 line-clamp-2 text-xl font-semibold">
-          {product.title}
+          {product.name}
         </h3>
 
-        <div className="mt-3 flex items-center gap-2">
-          <span className="text-yellow-500">
-            ★
-          </span>
-
-          <span className="text-sm">
-            {product.rating}
-          </span>
-
+        <div className="mt-3">
           <span className="text-sm text-muted-foreground">
-            ({product.reviews})
+            Stock: {product.stock}
           </span>
         </div>
 

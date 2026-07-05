@@ -12,6 +12,8 @@ import app.models.user
 import app.models.task
 import app.models.activity_log
 import app.models.notification
+import app.models.achievement
+import app.models.product
 
 config = context.config
 

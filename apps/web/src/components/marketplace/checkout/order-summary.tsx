@@ -1,46 +1,91 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+
 import { useCartStore } from "@/features/marketplace/store/cart.store"
-import { Tag, ShieldCheck, ShoppingBag, Ticket } from "lucide-react"
+
+import {
+  ShieldCheck,
+  ShoppingBag,
+  Ticket,
+} from "lucide-react"
 
 export default function OrderSummary() {
   const { cart } = useCartStore()
+
   const [promo, setPromo] = useState("")
+
   const [discount, setDiscount] = useState(0)
 
-  // Calculations
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal > 1000 || subtotal === 0 ? 0 : 99
-  const tax = Math.round(subtotal * 0.18) // 18% GST standard
-  const total = subtotal + shipping + tax - discount
+  const subtotal = cart.reduce(
+    (sum, item) =>
+      sum + item.price * item.quantity,
+    0,
+  )
 
-  const applyPromo = (e: React.FormEvent) => {
+  const shipping =
+    subtotal > 1000 || subtotal === 0
+      ? 0
+      : 99
+
+  const tax = Math.round(
+    subtotal * 0.18,
+  )
+
+  const total =
+    subtotal +
+    shipping +
+    tax -
+    discount
+
+  const applyPromo = (
+    e: React.FormEvent,
+  ) => {
     e.preventDefault()
-    if (promo.trim().toUpperCase() === "FARMGREEN10") {
-      setDiscount(Math.round(subtotal * 0.1)) // 10% off
+
+    if (
+      promo.trim().toUpperCase() ===
+      "FARMGREEN10"
+    ) {
+      setDiscount(
+        Math.round(subtotal * 0.1),
+      )
     }
   }
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-6 shadow-sm space-y-6">
-      <div className="flex items-center gap-2 mb-2">
-        <ShoppingBag className="h-5 w-5 text-green-600" />
-        <h3 className="text-lg font-bold tracking-tight">Order Summary</h3>
+    <div className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
+      <div className="mb-2 flex items-center gap-2">
+        <ShoppingBag className="h-5 w-5 text-emerald-600" />
+
+        <h3 className="text-lg font-bold">
+          Order Summary
+        </h3>
       </div>
 
-      {/* Cart items preview listing */}
       <div className="space-y-3">
         {cart.length === 0 ? (
-          <div className="text-xs text-muted-foreground py-2">Your cart is empty.</div>
+          <div className="py-2 text-xs text-muted-foreground">
+            Your cart is empty.
+          </div>
         ) : (
           cart.map((item) => (
-            <div key={item.id} className="flex justify-between text-xs text-muted-foreground">
+            <div
+              key={item.id}
+              className="flex justify-between text-xs text-muted-foreground"
+            >
               <span>
-                {item.title} <strong className="text-foreground">x{item.quantity}</strong>
+                {item.name}{" "}
+                <strong className="text-foreground">
+                  ×{item.quantity}
+                </strong>
               </span>
-              <span className="font-bold text-foreground">₹{item.price * item.quantity}</span>
+
+              <span className="font-bold text-foreground">
+                ₹
+                {item.price *
+                  item.quantity}
+              </span>
             </div>
           ))
         )}
@@ -48,57 +93,93 @@ export default function OrderSummary() {
 
       <hr className="border-border/50" />
 
-      {/* Costs distribution */}
-      <div className="space-y-2.5 text-xs">
-        <div className="flex justify-between text-muted-foreground">
+      <div className="space-y-2 text-xs">
+        <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-semibold text-foreground">₹{subtotal}</span>
+
+          <span className="font-semibold">
+            ₹{subtotal}
+          </span>
         </div>
-        <div className="flex justify-between text-muted-foreground">
-          <span>Shipping (Free above ₹1000)</span>
-          <span className="font-semibold text-foreground">{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
+
+        <div className="flex justify-between">
+          <span>
+            Shipping
+          </span>
+
+          <span className="font-semibold">
+            {shipping === 0
+              ? "FREE"
+              : `₹${shipping}`}
+          </span>
         </div>
-        <div className="flex justify-between text-muted-foreground">
-          <span>Estimated GST (18%)</span>
-          <span className="font-semibold text-foreground">₹{tax}</span>
+
+        <div className="flex justify-between">
+          <span>GST (18%)</span>
+
+          <span className="font-semibold">
+            ₹{tax}
+          </span>
         </div>
+
         {discount > 0 && (
-          <div className="flex justify-between text-green-600 font-bold">
-            <span>Promo Discount (10%)</span>
-            <span>-₹{discount}</span>
+          <div className="flex justify-between font-bold text-emerald-600">
+            <span>
+              Promo Discount
+            </span>
+
+            <span>
+              -₹{discount}
+            </span>
           </div>
         )}
-        <hr className="border-border/50 my-2" />
-        <div className="flex justify-between text-sm font-black text-foreground pt-1">
-          <span>Total Balance</span>
-          <span className="text-green-700 dark:text-green-400">₹{total}</span>
+
+        <hr className="border-border/50" />
+
+        <div className="flex justify-between pt-1 text-sm font-black">
+          <span>Total</span>
+
+          <span className="text-emerald-600">
+            ₹{total}
+          </span>
         </div>
       </div>
 
-      {/* Coupon form */}
-      <form onSubmit={applyPromo} className="flex gap-2">
+      <form
+        onSubmit={applyPromo}
+        className="flex gap-2"
+      >
         <div className="relative flex-1">
-          <Ticket className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
+          <Ticket className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
           <input
             type="text"
-            placeholder="Promo Code (FARMGREEN10)"
             value={promo}
-            onChange={(e) => setPromo(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-xl border border-border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-green-600"
+            onChange={(e) =>
+              setPromo(
+                e.target.value,
+              )
+            }
+            placeholder="Promo Code"
+            className="h-9 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-xs"
           />
         </div>
+
         <button
           type="submit"
-          className="bg-muted hover:bg-muted-foreground/10 text-foreground border border-border rounded-xl h-9 px-3 font-bold text-xs transition"
+          className="rounded-xl border border-border px-4 text-xs font-semibold hover:bg-muted"
         >
           Apply
         </button>
       </form>
 
-      {/* Security note */}
-      <div className="rounded-xl bg-green-500/[0.02] border border-green-500/10 p-3 flex gap-2 items-center text-[10px] text-muted-foreground">
-        <ShieldCheck className="h-4.5 w-4.5 text-green-600 shrink-0" />
-        <span>100% Encrypted Transactions. Secure Payments verified by AgriGym networks.</span>
+      <div className="flex items-center gap-2 rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-3 text-[10px] text-muted-foreground">
+        <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
+
+        <span>
+          Secure encrypted
+          checkout.
+        </span>
       </div>
     </div>
   )

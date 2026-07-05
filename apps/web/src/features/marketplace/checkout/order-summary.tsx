@@ -24,12 +24,11 @@ export default function OrderSummary() {
             className="flex justify-between"
           >
             <span>
-              {item.title} x {item.quantity}
+              {item.name} × {item.quantity}
             </span>
 
             <span>
-              ₹
-              {item.price * item.quantity}
+              ₹{item.price * item.quantity}
             </span>
           </div>
         ))}
