@@ -65,6 +65,12 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    products = relationship(
+        "Product",
+        back_populates="seller",
+        cascade="all, delete-orphan",
+    )
+
     farm_plans = relationship(
         "FarmPlan",
         back_populates="user",
