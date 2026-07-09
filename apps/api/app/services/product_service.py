@@ -24,24 +24,57 @@ class ProductService:
         seller_id: int,
         payload: ProductCreate,
     ):
+        if payload.price <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Price must be greater than zero.",
+            )
+
+        if payload.stock < 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Stock cannot be negative.",
+            )
+
         product = Product(
             seller_id=seller_id,
-            name=payload.name,
-            description=payload.description,
+            name=payload.name.strip(),
+            description=payload.description.strip(),
             price=payload.price,
             stock=payload.stock,
-            category=payload.category,
+            category=payload.category.strip(),
             image_url=payload.image_url,
         )
 
-        return self.repository.create(
-            product,
-        )
+        return self.repository.create(product)
 
     def list_products(
         self,
+        *,
+        search: str | None = None,
+        category: str | None = None,
+        min_price: float | None = None,
+        max_price: float | None = None,
+        page: int = 1,
+        limit: int = 10,
     ):
-        return self.repository.get_all()
+        if page < 1:
+            page = 1
+
+        if limit < 1:
+            limit = 10
+
+        if limit > 100:
+            limit = 100
+
+        return self.repository.get_all(
+            search=search,
+            category=category,
+            min_price=min_price,
+            max_price=max_price,
+            page=page,
+            limit=limit,
+        )
 
     def list_my_products(
         self,
@@ -73,46 +106,46 @@ class ProductService:
         seller_id: int,
         payload: ProductUpdate,
     ):
-        product = self.get_product(
-            product_id,
-        )
+        product = self.get_product(product_id)
 
         if product.seller_id != seller_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not allowed",
+                detail="You are not allowed to update this product.",
             )
 
         data = payload.model_dump(
             exclude_unset=True,
         )
 
-        for key, value in data.items():
-            setattr(
-                product,
-                key,
-                value,
+        if "price" in data and data["price"] <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Price must be greater than zero.",
             )
 
-        return self.repository.save(
-            product,
-        )
+        if "stock" in data and data["stock"] < 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Stock cannot be negative.",
+            )
+
+        for key, value in data.items():
+            setattr(product, key, value)
+
+        return self.repository.save(product)
 
     def delete_product(
         self,
         product_id: int,
         seller_id: int,
     ):
-        product = self.get_product(
-            product_id,
-        )
+        product = self.get_product(product_id)
 
         if product.seller_id != seller_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not allowed",
+                detail="You are not allowed to delete this product.",
             )
 
-        self.repository.delete(
-            product,
-        )
+        return self.repository.delete(product)

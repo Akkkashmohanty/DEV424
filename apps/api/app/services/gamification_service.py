@@ -37,14 +37,36 @@ class GamificationService:
         user: User,
     ) -> User:
         """
-        Award XP for completing a task.
+        Award default XP for completing a task.
+        """
+        return self.award_xp(
+            user=user,
+            xp=XP_PER_TASK,
+        )
+
+    def award_xp(
+        self,
+        user: User,
+        xp: int,
+    ) -> User:
+        """
+        Award custom XP to a user.
+
+        This method should be used by all future modules:
+        - Farm Activities
+        - Community Challenges
+        - Seasonal Planner
+        - Donations
+        - Marketplace Rewards
         """
 
-        user.xp_points += XP_PER_TASK
+        if xp <= 0:
+            return user
+
+        user.xp_points += xp
 
         user.level = (
-            user.xp_points
-            // XP_PER_LEVEL
+            user.xp_points // XP_PER_LEVEL
         ) + 1
 
         user = self.repository.save(
@@ -100,3 +122,48 @@ class GamificationService:
                 icon="🔥",
                 xp_reward=75,
             )
+
+    def get_user_level(
+        self,
+        xp_points: int,
+    ) -> int:
+        """
+        Calculate user level from XP.
+        """
+
+        return (
+            xp_points // XP_PER_LEVEL
+        ) + 1
+
+    def xp_required_for_next_level(
+        self,
+        level: int,
+    ) -> int:
+        """
+        XP required to reach the next level.
+        """
+
+        return level * XP_PER_LEVEL
+
+    def get_progress_percentage(
+        self,
+        user: User,
+    ) -> float:
+        """
+        Returns percentage progress toward the next level.
+        """
+
+        current_level_xp = (
+            (user.level - 1) * XP_PER_LEVEL
+        )
+
+        next_level_xp = (
+            user.level * XP_PER_LEVEL
+        )
+
+        progress = (
+            (user.xp_points - current_level_xp)
+            / (next_level_xp - current_level_xp)
+        ) * 100
+
+        return round(progress, 2)

@@ -64,3 +64,9 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    farm_plans = relationship(
+        "FarmPlan",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

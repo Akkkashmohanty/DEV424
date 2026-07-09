@@ -14,6 +14,16 @@ import app.models.activity_log
 import app.models.notification
 import app.models.achievement
 import app.models.product
+import app.models.user
+import app.models.task
+import app.models.activity_log
+import app.models.notification
+import app.models.achievement
+import app.models.product
+import app.models.order
+import app.models.order_item
+import app.models.farm_plan
+import app.models.farm_plan_crop
 
 config = context.config
 

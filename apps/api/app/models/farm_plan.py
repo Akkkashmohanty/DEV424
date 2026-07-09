@@ -2,11 +2,9 @@ from datetime import datetime
 
 from sqlalchemy import (
     DateTime,
-    Float,
     ForeignKey,
     Integer,
     String,
-    Text,
 )
 
 from sqlalchemy.orm import (
@@ -16,14 +14,10 @@ from sqlalchemy.orm import (
 )
 
 from app.db.base import Base
-from app.core.constants import (
-    OrderStatus,
-    PaymentStatus,
-)
 
 
-class Order(Base):
-    __tablename__ = "orders"
+class FarmPlan(Base):
+    __tablename__ = "farm_plans"
 
     id: Mapped[int] = mapped_column(
         Integer,
@@ -40,27 +34,35 @@ class Order(Base):
         index=True,
     )
 
-    total_amount: Mapped[float] = mapped_column(
-        Float,
+    city: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
-        default=0,
+    )
+
+    garden_type: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+    )
+
+    garden_size: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+    )
+
+    sunlight: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+    )
+
+    water_availability: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
     )
 
     status: Mapped[str] = mapped_column(
         String(30),
         nullable=False,
-        default=OrderStatus.PLACED.value,
-    )
-
-    payment_status: Mapped[str] = mapped_column(
-        String(30),
-        nullable=False,
-        default=PaymentStatus.PENDING.value,
-    )
-
-    shipping_address: Mapped[str] = mapped_column(
-        Text,
-        nullable=False,
+        default="ACTIVE",
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -78,11 +80,11 @@ class Order(Base):
 
     user = relationship(
         "User",
-        back_populates="orders",
+        back_populates="farm_plans",
     )
 
-    items = relationship(
-        "OrderItem",
-        back_populates="order",
+    crops = relationship(
+        "FarmPlanCrop",
+        back_populates="farm_plan",
         cascade="all, delete-orphan",
     )

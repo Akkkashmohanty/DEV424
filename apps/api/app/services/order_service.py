@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.repositories.order_repository import OrderRepository
 from app.repositories.order_item_repository import OrderItemRepository
@@ -12,6 +13,7 @@ from app.schemas.order import OrderCreate
 
 from app.models.order import Order
 from app.models.order_item import OrderItem
+
 
 class OrderService:
     def __init__(
@@ -35,12 +37,7 @@ class OrderService:
         user_id: int,
         payload: OrderCreate,
     ):
-        from app.models.order import Order
-        from app.models.order_item import OrderItem
-
-        user = self.user_repository.get_by_id(
-            user_id,
-        )
+        user = self.user_repository.get_by_id(user_id)
 
         if not user:
             raise HTTPException(
@@ -48,97 +45,109 @@ class OrderService:
                 detail="User not found",
             )
 
-        order = Order(
-            user_id=user_id,
-            shipping_address=payload.shipping_address,
-            total_amount=0,
-            status="PENDING",
-            payment_status="PENDING",
-        )
-
-        self.order_repository.create(
-            order,
-            commit=False,
-        )
-
-        self.order_repository.flush()
-
-        total_amount = 0
-
-        order_items: list[OrderItem] = []
-
-        product_ids = [
-            item.product_id
-            for item in payload.items
-        ]
-
-        products = {
-            product.id: product
-            for product in self.product_repository.get_by_ids(
-                product_ids,
-            )
-        }
-
-        for item in payload.items:
-            product = products.get(
-                item.product_id,
+        if not payload.items:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Order must contain at least one item.",
             )
 
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product {item.product_id} not found",
-                )
-
-            if product.stock < item.quantity:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Insufficient stock for {product.name}",
-                )
-
-            total_amount += (
-                product.price * item.quantity
+        try:
+            order = Order(
+                user_id=user_id,
+                shipping_address=payload.shipping_address,
+                total_amount=0,
+                status="PENDING",
+                payment_status="PENDING",
             )
 
-            order_items.append(
-                OrderItem(
-                    order_id=order.id,
-                    product_id=product.id,
-                    quantity=item.quantity,
-                    price=product.price,
-                )
-            )
-
-            product.stock -= item.quantity
-
-            self.product_repository.save(
-                product,
+            self.order_repository.create(
+                order,
                 commit=False,
             )
 
-        self.order_item_repository.create_many(
-            order_items,
-            commit=False,
-        )
+            self.order_repository.flush()
 
-        order.total_amount = total_amount
+            total_amount = 0
+            order_items: list[OrderItem] = []
 
-        self.order_repository.save(
-            order,
-            commit=False,
-        )
+            product_ids = [item.product_id for item in payload.items]
 
-        self.product_repository.flush()
+            products = {
+                product.id: product
+                for product in self.product_repository.get_by_ids(
+                    product_ids
+                )
+            }
 
-        self.order_item_repository.flush()
+            for item in payload.items:
 
-        self.order_repository.flush()
+                if item.quantity <= 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Quantity must be greater than zero.",
+                    )
 
-        self.order_repository.db.commit()
+                product = products.get(item.product_id)
 
-        self.order_repository.db.refresh(
-            order,
-        )
+                if not product:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"Product {item.product_id} not found.",
+                    )
+
+                if not product.is_active:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"{product.name} is unavailable.",
+                    )
+
+                if product.stock < item.quantity:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Insufficient stock for {product.name}.",
+                    )
+
+                total_amount += product.price * item.quantity
+
+                order_items.append(
+                    OrderItem(
+                        order_id=order.id,
+                        product_id=product.id,
+                        quantity=item.quantity,
+                        price=product.price,
+                    )
+                )
+
+                product.stock -= item.quantity
+
+                self.product_repository.save(
+                    product,
+                    commit=False,
+                )
+
+            self.order_item_repository.create_many(
+                order_items,
+                commit=False,
+            )
+
+            order.total_amount = total_amount
+
+            self.order_repository.save(
+                order,
+                commit=False,
+            )
+
+            self.order_repository.db.commit()
+
+            self.order_repository.db.refresh(order)
+
+        except SQLAlchemyError:
+            self.order_repository.db.rollback()
+
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create order.",
+            )
 
         self.activity_service.log(
             user_id=user_id,
@@ -152,9 +161,8 @@ class OrderService:
             message=f"Your order #{order.id} has been placed successfully.",
         )
 
-        return self.order_repository.get_by_id(
-            order.id,
-        )
+        return self.order_repository.get_by_id(order.id)
+
     def list_orders(
         self,
         user_id: int,
@@ -195,9 +203,51 @@ class OrderService:
                 detail="Order not found",
             )
 
-        self.order_repository.delete(
-            order,
-        )
+        if order.status in [
+            "CANCELLED",
+            "DELIVERED",
+        ]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Order cannot be cancelled because it is {order.status.lower()}.",
+            )
+
+        try:
+
+            for item in order.items:
+                product = self.product_repository.get_by_id(
+                    item.product_id,
+                )
+
+                if product:
+                    product.stock += item.quantity
+
+                    self.product_repository.save(
+                        product,
+                        commit=False,
+                    )
+
+            order.status = "CANCELLED"
+
+            if order.payment_status == "PAID":
+                order.payment_status = "REFUND_PENDING"
+
+            self.order_repository.save(
+                order,
+                commit=False,
+            )
+
+            self.order_repository.db.commit()
+
+            self.order_repository.db.refresh(order)
+
+        except SQLAlchemyError:
+            self.order_repository.db.rollback()
+
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to cancel order.",
+            )
 
         self.activity_service.log(
             user_id=user_id,
@@ -208,9 +258,7 @@ class OrderService:
         self.notification_service.notify(
             user_id=user_id,
             title="Order Cancelled",
-            message=f"Order #{order.id} has been cancelled.",
+            message=f"Order #{order.id} has been cancelled successfully.",
         )
 
-        return {
-            "message": "Order cancelled successfully",
-        }
+        return order

@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.models.product import Product
 
@@ -13,24 +14,53 @@ class ProductRepository:
     def create(
         self,
         product: Product,
-    ):
+    ) -> Product:
         self.db.add(product)
         self.db.commit()
         self.db.refresh(product)
-
         return product
 
     def get_all(
         self,
+        *,
+        search: str | None = None,
+        category: str | None = None,
+        min_price: float | None = None,
+        max_price: float | None = None,
+        page: int = 1,
+        limit: int = 10,
     ):
+        query = self.db.query(Product).filter(
+            Product.is_active.is_(True)
+        )
+
+        if search:
+            query = query.filter(
+                or_(
+                    Product.name.ilike(f"%{search}%"),
+                    Product.description.ilike(f"%{search}%"),
+                )
+            )
+
+        if category:
+            query = query.filter(
+                Product.category == category
+            )
+
+        if min_price is not None:
+            query = query.filter(
+                Product.price >= min_price
+            )
+
+        if max_price is not None:
+            query = query.filter(
+                Product.price <= max_price
+            )
+
         return (
-            self.db.query(Product)
-            .filter(
-                Product.is_active.is_(True),
-            )
-            .order_by(
-                Product.created_at.desc(),
-            )
+            query.order_by(Product.created_at.desc())
+            .offset((page - 1) * limit)
+            .limit(limit)
             .all()
         )
 
@@ -42,6 +72,7 @@ class ProductRepository:
             self.db.query(Product)
             .filter(
                 Product.id == product_id,
+                Product.is_active.is_(True),
             )
             .first()
         )
@@ -67,10 +98,9 @@ class ProductRepository:
             self.db.query(Product)
             .filter(
                 Product.seller_id == seller_id,
+                Product.is_active.is_(True),
             )
-            .order_by(
-                Product.created_at.desc(),
-            )
+            .order_by(Product.created_at.desc())
             .all()
         )
 
@@ -90,16 +120,15 @@ class ProductRepository:
         product: Product,
         commit: bool = True,
     ):
-        self.db.delete(product)
+        product.is_active = False
 
         if commit:
             self.db.commit()
+            self.db.refresh(product)
+
+        return product
 
     def flush(
         self,
-    ) -> None:
+    ):
         self.db.flush()
-
-
-
-        
