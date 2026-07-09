@@ -4,6 +4,8 @@ from sqlalchemy.orm import (
 )
 
 from app.models.order import Order
+from app.models.order_item import OrderItem
+from app.models.product import Product
 
 
 class OrderRepository:
@@ -87,6 +89,38 @@ class OrderRepository:
             .all()
         )
 
+    def get_by_seller(
+        self,
+        seller_id: int,
+    ) -> list[Order]:
+        """
+        Returns all orders containing products
+        belonging to the given seller.
+        """
+
+        return (
+            self.db.query(Order)
+            .join(
+                OrderItem,
+                Order.id == OrderItem.order_id,
+            )
+            .join(
+                Product,
+                Product.id == OrderItem.product_id,
+            )
+            .options(
+                joinedload(Order.items),
+            )
+            .filter(
+                Product.seller_id == seller_id,
+            )
+            .distinct()
+            .order_by(
+                Order.created_at.desc(),
+            )
+            .all()
+        )
+
     def list_all(
         self,
     ) -> list[Order]:
@@ -100,6 +134,20 @@ class OrderRepository:
             )
             .all()
         )
+
+    def update_status(
+        self,
+        order: Order,
+        status: str,
+        commit: bool = True,
+    ) -> Order:
+        order.status = status
+
+        if commit:
+            self.db.commit()
+            self.db.refresh(order)
+
+        return order
 
     def delete(
         self,
@@ -115,5 +163,3 @@ class OrderRepository:
         self,
     ) -> None:
         self.db.flush()
-
-        
