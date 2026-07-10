@@ -1,6 +1,11 @@
 from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.constants import (
+    OrderStatus,
+    PaymentStatus,
+)
+
 from app.repositories.order_repository import OrderRepository
 from app.repositories.order_item_repository import OrderItemRepository
 from app.repositories.product_repository import ProductRepository
@@ -56,8 +61,8 @@ class OrderService:
                 user_id=user_id,
                 shipping_address=payload.shipping_address,
                 total_amount=0,
-                status="PENDING",
-                payment_status="PENDING",
+                status=OrderStatus.PLACED.value,
+                payment_status=PaymentStatus.PENDING.value,
             )
 
             self.order_repository.create(
@@ -204,8 +209,8 @@ class OrderService:
             )
 
         if order.status in [
-            "CANCELLED",
-            "DELIVERED",
+            OrderStatus.CANCELLED.value,
+            OrderStatus.DELIVERED.value,
         ]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -227,10 +232,10 @@ class OrderService:
                         commit=False,
                     )
 
-            order.status = "CANCELLED"
+            order.status = OrderStatus.CANCELLED.value
 
-            if order.payment_status == "PAID":
-                order.payment_status = "REFUND_PENDING"
+            if order.payment_status == PaymentStatus.PAID.value:
+                order.payment_status = PaymentStatus.REFUND_PENDING.value
 
             self.order_repository.save(
                 order,
@@ -259,6 +264,97 @@ class OrderService:
             user_id=user_id,
             title="Order Cancelled",
             message=f"Order #{order.id} has been cancelled successfully.",
+        )
+
+        return order
+
+    def list_seller_orders(
+        self,
+        seller_id: int,
+    ):
+        return self.order_repository.get_by_seller(
+            seller_id,
+        )
+
+    def update_order_status(
+        self,
+        order_id: int,
+        seller_id: int,
+        status_in: str,
+    ):
+        order = self.order_repository.get_by_id(
+            order_id,
+        )
+
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Order not found.",
+            )
+
+        seller_has_access = False
+
+        for item in order.items:
+            product = self.product_repository.get_by_id(
+                item.product_id,
+            )
+
+            if product and product.seller_id == seller_id:
+                seller_has_access = True
+                break
+
+        if not seller_has_access:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not allowed to manage this order.",
+            )
+
+        if order.status in [
+            OrderStatus.CANCELLED.value,
+            OrderStatus.DELIVERED.value,
+        ]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Order is already {order.status.lower()}.",
+            )
+
+        allowed_statuses = {
+            OrderStatus.CONFIRMED.value,
+            OrderStatus.PROCESSING.value,
+            OrderStatus.PACKED.value,
+            OrderStatus.SHIPPED.value,
+            OrderStatus.DELIVERED.value,
+            OrderStatus.CANCELLED.value,
+        }
+
+        if status_in not in allowed_statuses:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid order status.",
+            )
+
+        if order.status == status_in:
+            return order
+
+        order = self.order_repository.update_status(
+            order,
+            status_in,
+            commit=False,
+        )
+
+        self.order_repository.db.commit()
+        self.order_repository.db.refresh(order)
+
+        self.activity_service.log(
+            user_id=order.user_id,
+            action="ORDER_STATUS_UPDATED",
+            description=f"Order #{order.id} updated to {status_in}.",
+        )
+
+        self.notification_service.notify(
+            user_id=order.user_id,
+            title="Order Updated",
+            message=f"Your order #{order.id} is now {status_in}.",
         )
 
         return order

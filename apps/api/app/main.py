@@ -25,6 +25,18 @@ from app.api.v1.order_routes import (
     router as order_router,
 )
 
+from app.api.v1.marketplace_routes import (
+    router as marketplace_router,
+)
+
+from app.api.v1.farm_plan_routes import (
+    router as farm_plan_router,
+)
+
+from app.api.v1.crop_routes import (
+    router as crop_router,
+)
+
 
 app = FastAPI(
     title="FarmGym API",
@@ -91,9 +103,25 @@ app.include_router(
     prefix="/api/v1",
 )
 
+app.include_router(
+    marketplace_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    farm_plan_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    crop_router,
+    prefix="/api/v1",
+)
+
 
 @app.get("/")
 def root():
     return {
         "message": "FarmGym API Running",
     }
+    

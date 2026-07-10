@@ -1,4 +1,7 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import (
+    Session,
+    joinedload,
+)
 
 from app.models.farm_plan import FarmPlan
 
@@ -12,29 +15,60 @@ class FarmPlanRepository:
 
     def create(
         self,
-        plan: FarmPlan,
+        farm_plan: FarmPlan,
+        commit: bool = True,
     ) -> FarmPlan:
-        self.db.add(plan)
-        self.db.commit()
-        self.db.refresh(plan)
-        return plan
+        self.db.add(farm_plan)
+
+        if commit:
+            self.db.commit()
+            self.db.refresh(farm_plan)
+
+        return farm_plan
 
     def save(
         self,
-        plan: FarmPlan,
+        farm_plan: FarmPlan,
+        commit: bool = True,
     ) -> FarmPlan:
-        self.db.commit()
-        self.db.refresh(plan)
-        return plan
+        if commit:
+            self.db.commit()
+            self.db.refresh(farm_plan)
+
+        return farm_plan
 
     def get_by_id(
         self,
-        plan_id: int,
+        farm_plan_id: int,
     ) -> FarmPlan | None:
         return (
             self.db.query(FarmPlan)
+            .options(
+                joinedload(
+                    FarmPlan.crops,
+                )
+            )
             .filter(
-                FarmPlan.id == plan_id,
+                FarmPlan.id == farm_plan_id,
+            )
+            .first()
+        )
+
+    def get_by_user_and_id(
+        self,
+        user_id: int,
+        farm_plan_id: int,
+    ) -> FarmPlan | None:
+        return (
+            self.db.query(FarmPlan)
+            .options(
+                joinedload(
+                    FarmPlan.crops,
+                )
+            )
+            .filter(
+                FarmPlan.user_id == user_id,
+                FarmPlan.id == farm_plan_id,
             )
             .first()
         )
@@ -45,6 +79,11 @@ class FarmPlanRepository:
     ) -> list[FarmPlan]:
         return (
             self.db.query(FarmPlan)
+            .options(
+                joinedload(
+                    FarmPlan.crops,
+                )
+            )
             .filter(
                 FarmPlan.user_id == user_id,
             )
@@ -56,7 +95,15 @@ class FarmPlanRepository:
 
     def delete(
         self,
-        plan: FarmPlan,
-    ) -> None:
-        self.db.delete(plan)
-        self.db.commit()
+        farm_plan: FarmPlan,
+        commit: bool = True,
+    ):
+        self.db.delete(farm_plan)
+
+        if commit:
+            self.db.commit()
+
+    def flush(
+        self,
+    ):
+        self.db.flush()

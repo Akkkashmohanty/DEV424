@@ -2,6 +2,7 @@ from fastapi import (
     APIRouter,
     Depends,
 )
+
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
@@ -41,6 +42,8 @@ from app.services.order_service import (
 from app.schemas.order import (
     OrderCreate,
     OrderResponse,
+    OrderStatusUpdate,
+    SellerOrderResponse,
 )
 
 router = APIRouter(
@@ -99,6 +102,44 @@ def list_orders(
 
     return service.list_orders(
         current_user.id,
+    )
+
+
+@router.get(
+    "/seller",
+    response_model=list[SellerOrderResponse],
+)
+def list_seller_orders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user,
+    ),
+):
+    service = get_order_service(db)
+
+    return service.list_seller_orders(
+        current_user.id,
+    )
+
+
+@router.patch(
+    "/{order_id}/status",
+    response_model=OrderResponse,
+)
+def update_order_status(
+    order_id: int,
+    payload: OrderStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user,
+    ),
+):
+    service = get_order_service(db)
+
+    return service.update_order_status(
+        order_id=order_id,
+        seller_id=current_user.id,
+        status_in=payload.status,
     )
 
 
