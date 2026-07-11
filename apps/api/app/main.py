@@ -37,6 +37,14 @@ from app.api.v1.crop_routes import (
     router as crop_router,
 )
 
+from app.api.v1.farm_intelligence_routes import (
+    router as farm_intelligence_router,
+)
+
+from app.api.v1.weather_routes import (
+    router as weather_router,
+)
+
 
 app = FastAPI(
     title="FarmGym API",
@@ -115,6 +123,16 @@ app.include_router(
 
 app.include_router(
     crop_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    farm_intelligence_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    weather_router,
     prefix="/api/v1",
 )
 

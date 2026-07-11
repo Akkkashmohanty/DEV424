@@ -1,0 +1,321 @@
+[
+    {
+        "name": "Tomato",
+        "scientific_name": "Solanum lycopersicum",
+        "category": "Vegetables",
+        "difficulty": "Medium",
+        "description": "Popular fruiting vegetable suitable for balcony gardens.",
+        "ideal_temperature_min": 20,
+        "ideal_temperature_max": 30,
+        "humidity_min": 50,
+        "humidity_max": 70,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Full Sun",
+        "water_requirement": "Medium",
+        "soil_type": "Loamy",
+        "ph_min": 6.0,
+        "ph_max": 6.8,
+        "spacing_cm": 45,
+        "harvest_days": 90,
+        "image_url": null,
+        "companion_plants": "Basil,Marigold",
+        "common_diseases": "Early Blight,Late Blight",
+        "seasons": [
+            "Summer",
+            "Winter"
+        ],
+        "tasks": [
+            {
+                "day": 1,
+                "title": "Sow Seeds",
+                "description": "Plant seeds in trays."
+            },
+            {
+                "day": 15,
+                "title": "Transplant",
+                "description": "Move seedlings."
+            },
+            {
+                "day": 30,
+                "title": "Apply Compost",
+                "description": "Feed organically."
+            },
+            {
+                "day": 60,
+                "title": "Flowering",
+                "description": "Monitor flowering."
+            },
+            {
+                "day": 90,
+                "title": "Harvest",
+                "description": "Harvest ripe tomatoes."
+            }
+        ]
+    },
+    {
+        "name": "Chilli",
+        "scientific_name": "Capsicum annuum",
+        "category": "Vegetables",
+        "difficulty": "Easy",
+        "description": "High-yield spicy pepper crop.",
+        "ideal_temperature_min": 22,
+        "ideal_temperature_max": 32,
+        "humidity_min": 45,
+        "humidity_max": 70,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Full Sun",
+        "water_requirement": "Medium",
+        "soil_type": "Loamy",
+        "ph_min": 6.0,
+        "ph_max": 7.0,
+        "spacing_cm": 40,
+        "harvest_days": 95,
+        "image_url": null,
+        "companion_plants": "Basil,Onion",
+        "common_diseases": "Leaf Curl,Anthracnose",
+        "seasons": [
+            "Summer",
+            "Winter"
+        ],
+        "tasks": [
+            {
+                "day": 1,
+                "title": "Sow Seeds",
+                "description": "Prepare nursery."
+            },
+            {
+                "day": 20,
+                "title": "Transplant",
+                "description": "Move seedlings."
+            },
+            {
+                "day": 40,
+                "title": "Mulching",
+                "description": "Protect soil moisture."
+            },
+            {
+                "day": 70,
+                "title": "Flowering",
+                "description": "Inspect flowers."
+            },
+            {
+                "day": 95,
+                "title": "Harvest",
+                "description": "Harvest chillies."
+            }
+        ]
+    },
+    {
+        "name": "Brinjal",
+        "scientific_name": "Solanum melongena",
+        "category": "Vegetables",
+        "difficulty": "Medium",
+        "description": "Eggplant suitable for containers.",
+        "ideal_temperature_min": 22,
+        "ideal_temperature_max": 32,
+        "humidity_min": 50,
+        "humidity_max": 75,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Full Sun",
+        "water_requirement": "Medium",
+        "soil_type": "Loamy",
+        "ph_min": 5.8,
+        "ph_max": 6.8,
+        "spacing_cm": 60,
+        "harvest_days": 110,
+        "image_url": null,
+        "companion_plants": "Beans,Marigold",
+        "common_diseases": "Wilt,Shoot Borer",
+        "seasons": [
+            "Summer",
+            "Winter"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Okra",
+        "scientific_name": "Abelmoschus esculentus",
+        "category": "Vegetables",
+        "difficulty": "Easy",
+        "description": "Fast-growing warm season vegetable.",
+        "ideal_temperature_min": 24,
+        "ideal_temperature_max": 35,
+        "humidity_min": 45,
+        "humidity_max": 70,
+        "rainfall_preference": "Low",
+        "sunlight_requirement": "Full Sun",
+        "water_requirement": "Medium",
+        "soil_type": "Loamy",
+        "ph_min": 6.0,
+        "ph_max": 7.5,
+        "spacing_cm": 40,
+        "harvest_days": 55,
+        "image_url": null,
+        "companion_plants": "Cucumber",
+        "common_diseases": "Powdery Mildew",
+        "seasons": [
+            "Summer",
+            "Monsoon"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Spinach",
+        "scientific_name": "Spinacia oleracea",
+        "category": "Leafy Greens",
+        "difficulty": "Easy",
+        "description": "Nutrient-rich leafy vegetable.",
+        "ideal_temperature_min": 15,
+        "ideal_temperature_max": 24,
+        "humidity_min": 55,
+        "humidity_max": 80,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Partial Sun",
+        "water_requirement": "High",
+        "soil_type": "Loamy",
+        "ph_min": 6.0,
+        "ph_max": 7.5,
+        "spacing_cm": 20,
+        "harvest_days": 45,
+        "image_url": null,
+        "companion_plants": "Radish",
+        "common_diseases": "Downy Mildew",
+        "seasons": [
+            "Winter"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Coriander",
+        "scientific_name": "Coriandrum sativum",
+        "category": "Herbs",
+        "difficulty": "Easy",
+        "description": "Popular culinary herb.",
+        "ideal_temperature_min": 18,
+        "ideal_temperature_max": 28,
+        "humidity_min": 50,
+        "humidity_max": 70,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Partial Sun",
+        "water_requirement": "Medium",
+        "soil_type": "Loamy",
+        "ph_min": 6.2,
+        "ph_max": 6.8,
+        "spacing_cm": 20,
+        "harvest_days": 40,
+        "image_url": null,
+        "companion_plants": "Tomato",
+        "common_diseases": "Leaf Spot",
+        "seasons": [
+            "Winter"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Mint",
+        "scientific_name": "Mentha",
+        "category": "Herbs",
+        "difficulty": "Easy",
+        "description": "Fast-growing aromatic herb.",
+        "ideal_temperature_min": 18,
+        "ideal_temperature_max": 30,
+        "humidity_min": 60,
+        "humidity_max": 85,
+        "rainfall_preference": "High",
+        "sunlight_requirement": "Partial Sun",
+        "water_requirement": "High",
+        "soil_type": "Moist Loamy",
+        "ph_min": 6.0,
+        "ph_max": 7.0,
+        "spacing_cm": 25,
+        "harvest_days": 60,
+        "image_url": null,
+        "companion_plants": "Cabbage",
+        "common_diseases": "Rust",
+        "seasons": [
+            "Summer",
+            "Winter"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Lettuce",
+        "scientific_name": "Lactuca sativa",
+        "category": "Leafy Greens",
+        "difficulty": "Easy",
+        "description": "Cool season leafy vegetable.",
+        "ideal_temperature_min": 15,
+        "ideal_temperature_max": 22,
+        "humidity_min": 55,
+        "humidity_max": 75,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Partial Sun",
+        "water_requirement": "High",
+        "soil_type": "Loamy",
+        "ph_min": 6.0,
+        "ph_max": 7.0,
+        "spacing_cm": 30,
+        "harvest_days": 45,
+        "image_url": null,
+        "companion_plants": "Carrot",
+        "common_diseases": "Bottom Rot",
+        "seasons": [
+            "Winter"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Cucumber",
+        "scientific_name": "Cucumis sativus",
+        "category": "Vegetables",
+        "difficulty": "Medium",
+        "description": "Climbing vine suitable for trellises.",
+        "ideal_temperature_min": 22,
+        "ideal_temperature_max": 32,
+        "humidity_min": 55,
+        "humidity_max": 80,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Full Sun",
+        "water_requirement": "High",
+        "soil_type": "Sandy Loam",
+        "ph_min": 6.0,
+        "ph_max": 7.0,
+        "spacing_cm": 60,
+        "harvest_days": 60,
+        "image_url": null,
+        "companion_plants": "Beans",
+        "common_diseases": "Powdery Mildew",
+        "seasons": [
+            "Summer",
+            "Monsoon"
+        ],
+        "tasks": []
+    },
+    {
+        "name": "Beans",
+        "scientific_name": "Phaseolus vulgaris",
+        "category": "Vegetables",
+        "difficulty": "Easy",
+        "description": "Nitrogen-fixing vegetable crop.",
+        "ideal_temperature_min": 18,
+        "ideal_temperature_max": 28,
+        "humidity_min": 50,
+        "humidity_max": 70,
+        "rainfall_preference": "Moderate",
+        "sunlight_requirement": "Full Sun",
+        "water_requirement": "Medium",
+        "soil_type": "Loamy",
+        "ph_min": 6.0,
+        "ph_max": 7.0,
+        "spacing_cm": 30,
+        "harvest_days": 70,
+        "image_url": null,
+        "companion_plants": "Corn",
+        "common_diseases": "Rust",
+        "seasons": [
+            "Winter",
+            "Monsoon"
+        ],
+        "tasks": []
+    }
+]
