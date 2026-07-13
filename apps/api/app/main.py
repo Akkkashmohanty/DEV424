@@ -45,6 +45,10 @@ from app.api.v1.weather_routes import (
     router as weather_router,
 )
 
+from app.api.v1.farm_plan_generator_routes import (
+    router as farm_plan_generator_router,
+)
+
 
 app = FastAPI(
     title="FarmGym API",
@@ -133,6 +137,11 @@ app.include_router(
 
 app.include_router(
     weather_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    farm_plan_generator_router,
     prefix="/api/v1",
 )
 

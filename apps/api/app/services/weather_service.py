@@ -1,3 +1,4 @@
+from datetime import datetime
 from urllib.parse import quote
 
 import httpx
@@ -15,19 +16,31 @@ class WeatherService:
 
         self.api_key = settings.OPENWEATHER_API_KEY
 
+    def _get_current_season(
+        self,
+    ) -> str:
+
+        month = datetime.now().month
+
+        if month in [12, 1, 2]:
+            return "Winter"
+
+        if month in [3, 4, 5]:
+            return "Summer"
+
+        if month in [6, 7, 8, 9]:
+            return "Monsoon"
+
+        return "Autumn"
+
     async def get_weather(
         self,
         city: str,
     ) -> dict:
 
         async with httpx.AsyncClient(
-            timeout=10.0,
+            timeout=10,
         ) as client:
-
-            # -----------------------------
-            # Step 1
-            # Get coordinates
-            # -----------------------------
 
             geo_response = await client.get(
                 self.GEO_URL,
@@ -44,18 +57,13 @@ class WeatherService:
 
             if not geo:
 
-                raise Exception(
+                raise ValueError(
                     f"City '{city}' not found."
                 )
 
             lat = geo[0]["lat"]
 
             lon = geo[0]["lon"]
-
-            # -----------------------------
-            # Step 2
-            # Weather
-            # -----------------------------
 
             weather_response = await client.get(
                 self.WEATHER_URL,
@@ -72,15 +80,11 @@ class WeatherService:
             weather = weather_response.json()
 
             return {
-
                 "city": city,
-
                 "temperature": weather["main"]["temp"],
-
                 "humidity": weather["main"]["humidity"],
-
                 "weather": weather["weather"][0]["main"],
-
+                "season": self._get_current_season(),
                 "rainfall": weather.get(
                     "rain",
                     {},
