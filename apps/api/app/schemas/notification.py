@@ -11,6 +11,8 @@ class NotificationResponse(BaseModel):
     title: str
     message: str
 
+    scheduled_for: datetime
+
     is_read: bool
 
     created_at: datetime

@@ -38,6 +38,12 @@ class Notification(Base):
         nullable=False,
     )
 
+    # NEW
+    scheduled_for: Mapped[datetime] = mapped_column(
+        DateTime,
+        nullable=False,
+    )
+
     is_read: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
