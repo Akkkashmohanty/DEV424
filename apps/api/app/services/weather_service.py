@@ -1,5 +1,4 @@
 from datetime import datetime
-from urllib.parse import quote
 
 import httpx
 
@@ -13,22 +12,19 @@ class WeatherService:
     WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 
     def __init__(self):
-
         self.api_key = settings.OPENWEATHER_API_KEY
 
-    def _get_current_season(
-        self,
-    ) -> str:
+    def _get_current_season(self) -> str:
 
         month = datetime.now().month
 
         if month in [12, 1, 2]:
             return "Winter"
 
-        if month in [3, 4, 5]:
+        elif month in [3, 4, 5]:
             return "Summer"
 
-        if month in [6, 7, 8, 9]:
+        elif month in [6, 7, 8, 9]:
             return "Monsoon"
 
         return "Autumn"
@@ -45,7 +41,7 @@ class WeatherService:
             geo_response = await client.get(
                 self.GEO_URL,
                 params={
-                    "q": quote(city),
+                    "q": city,
                     "limit": 1,
                     "appid": self.api_key,
                 },
@@ -56,13 +52,11 @@ class WeatherService:
             geo = geo_response.json()
 
             if not geo:
-
                 raise ValueError(
                     f"City '{city}' not found."
                 )
 
             lat = geo[0]["lat"]
-
             lon = geo[0]["lon"]
 
             weather_response = await client.get(
@@ -82,14 +76,11 @@ class WeatherService:
             return {
                 "city": city,
                 "temperature": weather["main"]["temp"],
+                "feels_like": weather["main"]["feels_like"],
                 "humidity": weather["main"]["humidity"],
                 "weather": weather["weather"][0]["main"],
+                "wind_speed": weather["wind"]["speed"],
+                "pressure": weather["main"]["pressure"],
+                "rainfall": weather.get("rain", {}).get("1h", 0),
                 "season": self._get_current_season(),
-                "rainfall": weather.get(
-                    "rain",
-                    {},
-                ).get(
-                    "1h",
-                    0,
-                ),
             }

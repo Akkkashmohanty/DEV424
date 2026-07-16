@@ -6,11 +6,18 @@ import {
   useQueryClient,
 } from "@tanstack/react-query"
 
-import { plannerApi } from "../api/planner.api"
+import {
+  plannerApi,
+  FarmPlanRequest,
+} from "../api/planner.api"
 
 import {
   UpdateTaskPayload,
 } from "../types/planner.types"
+
+// ======================================================
+// TASKS
+// ======================================================
 
 export function useTasks() {
   return useQuery({
@@ -83,5 +90,56 @@ export function useDeleteTask() {
   })
 }
 
+// ======================================================
+// WEATHER
+// ======================================================
 
+export function useWeather(
+  city: string,
+) {
+  return useQuery({
+    queryKey: [
+      "weather",
+      city,
+    ],
 
+    queryFn: () =>
+      plannerApi.getWeather(
+        city,
+      ),
+
+    enabled: city.trim().length > 0,
+
+    staleTime: 1000 * 60 * 10,
+  })
+}
+
+// ======================================================
+// FARM PLAN
+// ======================================================
+
+export function useFarmPlan() {
+  return useMutation({
+    mutationFn: (
+      payload: FarmPlanRequest,
+    ) =>
+      plannerApi.generateFarmPlan(
+        payload,
+      ),
+  })
+}
+
+// ======================================================
+// AI ADVICE
+// ======================================================
+
+export function useAIAdvice() {
+  return useMutation({
+    mutationFn: (
+      payload: any,
+    ) =>
+      plannerApi.getAIAdvice(
+        payload,
+      ),
+  })
+}

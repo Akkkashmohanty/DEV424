@@ -6,10 +6,17 @@ class WeatherResponse(BaseModel):
 
     temperature: float
 
+    feels_like: float
+
     humidity: int
 
     weather: str
 
-    season: str
+    wind_speed: float
 
-    rainfall: float
+    pressure: int
+
+    rainfall: float | None = None
+
+
+    
