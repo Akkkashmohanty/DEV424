@@ -1,9 +1,12 @@
 "use client"
 
+import MarketplaceAnalytics from "@/components/marketplace/analytics/marketplace-analytics"
 import ProductCard from "@/components/marketplace/cards/product-card"
 import ProductFilters from "@/components/marketplace/filters/product-filters"
 
-import { useProducts } from "@/features/marketplace/hooks/use-products"
+import {
+  useProducts,
+} from "@/features/marketplace/hooks/use-products"
 
 export default function MarketplacePage() {
   const {
@@ -15,19 +18,15 @@ export default function MarketplacePage() {
   if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <p className="text-lg font-medium">
-          Loading products...
-        </p>
+        Loading products...
       </main>
     )
   }
 
   if (isError) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-lg font-medium text-red-600">
-          Failed to load products.
-        </p>
+      <main className="flex min-h-screen items-center justify-center text-red-600">
+        Failed to load marketplace.
       </main>
     )
   }
@@ -35,11 +34,16 @@ export default function MarketplacePage() {
   return (
     <main className="min-h-screen p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
+
         <h1 className="text-5xl font-bold">
           Farming Marketplace
         </h1>
 
         <div className="mt-8">
+          <MarketplaceAnalytics />
+        </div>
+
+        <div className="mt-10">
           <ProductFilters />
         </div>
 
@@ -51,6 +55,7 @@ export default function MarketplacePage() {
             />
           ))}
         </div>
+
       </div>
     </main>
   )

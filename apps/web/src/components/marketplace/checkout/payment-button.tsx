@@ -4,35 +4,66 @@ import { useState } from "react"
 import { Lock, CreditCard, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useCartStore } from "@/features/marketplace/store/cart.store"
+import {
+  useCreateOrder,
+} from "@/features/marketplace/hooks/use-orders"
 
 export default function PaymentButton() {
   const { clearCart, cart } = useCartStore()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
-  const handleCheckout = () => {
-    if (cart.length === 0) {
-      toast.error("Shopping cart is empty!", {
-        description: "Add seeds or organic soil mixtures before checkout.",
-      })
-      return
+  const createOrder =
+    useCreateOrder()
+
+  const handleCheckout =
+    async () => {
+
+      if (cart.length === 0) {
+        toast.error(
+          "Cart is empty",
+        )
+        return
+      }
+
+      try {
+
+        setLoading(true)
+
+        await createOrder.mutateAsync({
+          items: cart.map(
+            (item) => ({
+              product_id:
+                item.id,
+
+              quantity:
+                item.quantity,
+            }),
+          ),
+        })
+
+        clearCart()
+
+        setSuccess(true)
+
+        toast.success(
+          "Order placed successfully!",
+        )
+
+      } catch (error: any) {
+
+        toast.error(
+          error?.response?.data
+            ?.detail ??
+          "Unable to place order.",
+        )
+
+      } finally {
+
+        setLoading(false)
+
+      }
     }
-
-    setLoading(true)
-    toast.info("Connecting to secure payment gateway...", {
-      description: "Do not close or reload this window.",
-    })
-
-    // Simulate payment transaction process
-    setTimeout(() => {
-      setLoading(false)
-      setSuccess(true)
-      clearCart()
-      toast.success("Payment Received Successfully!", {
-        description: "Order confirmation invoice sent to your profile email.",
-      })
-    }, 3000)
-  }
 
   if (success) {
     return (

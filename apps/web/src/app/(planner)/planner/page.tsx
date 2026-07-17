@@ -1,5 +1,12 @@
 "use client"
 
+import {
+  CalendarDays,
+  Leaf,
+  Sprout,
+  Droplets,
+} from "lucide-react"
+
 import ProtectedRoute from "@/components/auth/protected-route"
 
 import PlantingCalendar from "@/components/planner/calendar/planting-calendar"
@@ -10,43 +17,174 @@ import HarvestTimeline from "@/components/planner/timeline/harvest-timeline"
 import AIRecommendations from "@/components/planner/recommendations/ai-recommendations"
 import CropHealthCard from "@/components/planner/analytics/crop-health-card"
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+
 function PlannerContent() {
   return (
-    <main className="min-h-screen bg-muted/30 p-4 md:p-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <main className="min-h-screen bg-muted/30 p-6">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
           <div>
-            <h1 className="text-5xl font-bold">
-              AI Farm Planner
+            <h1 className="text-4xl font-bold tracking-tight">
+              🌱 AI Farm Planner
             </h1>
 
-            <p className="mt-4 text-lg text-muted-foreground">
-              Smart planning for sustainable farming.
+            <p className="mt-2 text-muted-foreground">
+              Plan your crops, monitor progress,
+              manage watering schedules and receive
+              intelligent seasonal recommendations.
             </p>
           </div>
         </div>
 
-        <div className="mt-10 grid gap-6 xl:grid-cols-3">
+        {/* Summary Cards */}
+
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">
+                Active Crops
+              </CardTitle>
+
+              <Sprout className="h-5 w-5" />
+            </CardHeader>
+
+            <CardContent>
+
+              <p className="text-3xl font-bold">
+                8
+              </p>
+
+              <p className="text-sm text-muted-foreground">
+                Currently growing
+              </p>
+
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+
+              <CardTitle className="text-base">
+                Water Today
+              </CardTitle>
+
+              <Droplets className="h-5 w-5" />
+
+            </CardHeader>
+
+            <CardContent>
+
+              <p className="text-3xl font-bold">
+                5
+              </p>
+
+              <p className="text-sm text-muted-foreground">
+                Plants scheduled
+              </p>
+
+            </CardContent>
+
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+
+              <CardTitle className="text-base">
+                Harvest Soon
+              </CardTitle>
+
+              <Leaf className="h-5 w-5" />
+
+            </CardHeader>
+
+            <CardContent>
+
+              <p className="text-3xl font-bold">
+                3
+              </p>
+
+              <p className="text-sm text-muted-foreground">
+                Ready within 7 days
+              </p>
+
+            </CardContent>
+
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+
+              <CardTitle className="text-base">
+                Planner Tasks
+              </CardTitle>
+
+              <CalendarDays className="h-5 w-5" />
+
+            </CardHeader>
+
+            <CardContent>
+
+              <p className="text-3xl font-bold">
+                12
+              </p>
+
+              <p className="text-sm text-muted-foreground">
+                Scheduled this month
+              </p>
+
+            </CardContent>
+
+          </Card>
+
+        </section>
+
+        {/* Weather + Calendar */}
+
+        <section className="grid gap-6 xl:grid-cols-3">
+
           <div className="xl:col-span-2">
             <PlantingCalendar />
           </div>
 
           <WeatherWidget />
-        </div>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        </section>
+
+        {/* Reminder + Harvest */}
+
+        <section className="grid gap-6 xl:grid-cols-2">
+
           <ReminderList />
+
           <HarvestTimeline />
-        </div>
 
-        <div className="mt-6">
+        </section>
+
+        {/* AI */}
+
+        <section>
+
           <AIRecommendations />
-        </div>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        </section>
+
+        {/* Bottom */}
+
+        <section className="grid gap-6 xl:grid-cols-2">
+
           <BalconyPlanner />
+
           <CropHealthCard />
-        </div>
+
+        </section>
+
       </div>
     </main>
   )

@@ -8,14 +8,17 @@ from pydantic import (
 
 class ProductCreate(BaseModel):
     name: str
-
     description: str
-
     price: float
-
     stock: int
 
     category: str
+
+    sku: str
+
+    brand: str | None = None
+
+    unit: str = "Piece"
 
     image_url: str | None = None
 

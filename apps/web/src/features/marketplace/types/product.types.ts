@@ -7,6 +7,12 @@ export interface Product {
 
     description: string
 
+    sku: string
+
+    brand: string | null
+
+    unit: string
+
     price: number
 
     stock: number
@@ -25,6 +31,12 @@ export interface ProductCreate {
 
     description: string
 
+    sku: string
+
+    brand?: string | null
+
+    unit?: string
+
     price: number
 
     stock: number
@@ -38,6 +50,12 @@ export interface ProductUpdate {
     name?: string
 
     description?: string
+
+    sku?: string
+
+    brand?: string | null
+
+    unit?: string
 
     price?: number
 

@@ -38,13 +38,25 @@ class ProductService:
 
         product = Product(
             seller_id=seller_id,
+
             name=payload.name.strip(),
+
             description=payload.description.strip(),
-            price=payload.price,
-            stock=payload.stock,
+
+            sku=payload.sku.strip(),
+
+            brand=payload.brand,
+
+            unit=payload.unit,
+
             category=payload.category.strip(),
+
+            price=payload.price,
+
+            stock=payload.stock,
+
             image_url=payload.image_url,
-        )
+)
 
         return self.repository.create(product)
 
