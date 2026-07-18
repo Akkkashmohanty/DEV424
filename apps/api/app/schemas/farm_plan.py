@@ -80,3 +80,60 @@ class FarmPlanResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+
+class FarmDashboardResponse(BaseModel):
+    active_crops: int
+    water_today: int
+    harvest_soon: int
+    planner_tasks: int
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+class CropRecommendationResponse(BaseModel):
+    id: int
+    crop: str
+    category: str
+    difficulty: str
+    harvest_days: int
+    water_requirement: str
+    sunlight_requirement: str
+    recommendation_score: int
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+
+class HarvestTimelineItemResponse(BaseModel):
+    crop_name: str
+    planting_date: str
+    expected_harvest_date: str
+    status: str
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+class WaterScheduleItemResponse(BaseModel):
+    crop_name: str
+    watering_frequency: str
+    next_watering: str
+    status: str
+
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
+
+class CropLifecycleItemResponse(BaseModel):
+    crop_name: str
+    planting_date: str
+    expected_harvest_date: str
+    status: str
+    progress: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+    

@@ -17,6 +17,12 @@ import HarvestTimeline from "@/components/planner/timeline/harvest-timeline"
 import AIRecommendations from "@/components/planner/recommendations/ai-recommendations"
 import CropHealthCard from "@/components/planner/analytics/crop-health-card"
 
+import WateringSchedule from "@/features/planner/weather/watering-schedule"
+
+import { useDashboardSummary } from "@/features/planner/hooks/use-planner"
+
+import CropLifecycleCard from "@/features/planner/lifecycle/crop-lifecycle-card"
+
 import {
   Card,
   CardContent,
@@ -25,6 +31,11 @@ import {
 } from "@/components/ui/card"
 
 function PlannerContent() {
+  const {
+    data: dashboard,
+    isLoading,
+  } = useDashboardSummary()
+
   return (
     <main className="min-h-screen bg-muted/30 p-6">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -58,7 +69,9 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                8
+                {isLoading
+                  ? "--"
+                  : dashboard?.active_crops ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -82,7 +95,9 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                5
+                {isLoading
+                  ? "--"
+                  : dashboard?.water_today ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -107,7 +122,9 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                3
+                {isLoading
+                  ? "--"
+                  : dashboard?.harvest_soon ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -132,7 +149,9 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                12
+                {isLoading
+                  ? "--"
+                  : dashboard?.planner_tasks ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -157,11 +176,13 @@ function PlannerContent() {
 
         </section>
 
-        {/* Reminder + Harvest */}
+        {/* Reminder + Water Schedule + Harvest */}
 
-        <section className="grid gap-6 xl:grid-cols-2">
+        <section className="grid gap-6 xl:grid-cols-3">
 
           <ReminderList />
+
+          <WateringSchedule />
 
           <HarvestTimeline />
 
@@ -177,9 +198,11 @@ function PlannerContent() {
 
         {/* Bottom */}
 
-        <section className="grid gap-6 xl:grid-cols-2">
+        <section className="grid gap-6 xl:grid-cols-3">
 
           <BalconyPlanner />
+
+          <CropLifecycleCard />
 
           <CropHealthCard />
 

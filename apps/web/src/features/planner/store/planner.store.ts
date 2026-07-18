@@ -24,6 +24,8 @@ interface PlannerState {
   city: string
   gardenSize: number
   season: string
+  sunlight: string
+  waterAvailability: string
 
   selectedCrops: string[]
 
@@ -41,6 +43,12 @@ interface PlannerState {
   setCity: (city: string) => void
   setGardenSize: (size: number) => void
   setSeason: (season: string) => void
+  setSunlight: (
+    sunlight: string,
+  ) => void
+  setWaterAvailability: (
+    waterAvailability: string,
+  ) => void
 
   setSelectedCrops: (crops: string[]) => void
 
@@ -69,11 +77,15 @@ export const usePlannerStore =
   create<PlannerState>((set) => ({
     selectedDate: new Date(),
 
-    city: "",
+    city: "Bengaluru",
 
     gardenSize: 50,
 
     season: "Summer",
+
+    sunlight: "Full Sun",
+
+    waterAvailability: "Medium",
 
     selectedCrops: [],
 
@@ -98,6 +110,20 @@ export const usePlannerStore =
 
     setSeason: (season) =>
       set({ season }),
+
+    setSunlight: (
+      sunlight,
+    ) =>
+      set({
+        sunlight,
+      }),
+
+    setWaterAvailability: (
+      waterAvailability,
+    ) =>
+      set({
+        waterAvailability,
+      }),
 
     setSelectedCrops: (selectedCrops) =>
       set({ selectedCrops }),

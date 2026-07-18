@@ -143,3 +143,78 @@ export function useAIAdvice() {
       ),
   })
 }
+
+export function useDashboardSummary() {
+  return useQuery({
+    queryKey: ["planner-dashboard"],
+
+    queryFn:
+      plannerApi.getDashboardSummary,
+
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export function useFarmPlans() {
+  return useQuery({
+    queryKey: ["farm-plans"],
+    queryFn:
+      plannerApi.getFarmPlans,
+  })
+}
+
+export function useRecommendations(
+  season: string,
+  sunlight: string,
+  water: string,
+) {
+  return useQuery({
+    queryKey: [
+      "recommendations",
+      season,
+      sunlight,
+      water,
+    ],
+
+    queryFn: () =>
+      plannerApi.getRecommendations(
+        season,
+        sunlight,
+        water,
+      ),
+
+    enabled:
+      season.length > 0 &&
+      sunlight.length > 0 &&
+      water.length > 0,
+  })
+}
+
+export function useHarvestTimeline() {
+  return useQuery({
+    queryKey: ["harvest-timeline"],
+
+    queryFn:
+      plannerApi.getHarvestTimeline,
+  })
+}
+
+export function useWaterSchedule() {
+  return useQuery({
+    queryKey: [
+      "watering-schedule",
+    ],
+
+    queryFn:
+      plannerApi.getWaterSchedule,
+  })
+}
+
+export function useCropLifecycle() {
+  return useQuery({
+    queryKey: ["crop-lifecycle"],
+
+    queryFn:
+      plannerApi.getCropLifecycle,
+  })
+}

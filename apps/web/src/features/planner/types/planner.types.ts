@@ -49,3 +49,10 @@ export interface HealthStatus {
   crop: string
   health: string
 }
+
+export interface HarvestTimelineItem {
+  crop_name: string
+  planting_date: string
+  expected_harvest_date: string
+  status: string
+}

@@ -16,6 +16,21 @@ export interface FarmPlanRequest {
   water_availability: string
 }
 
+export interface WaterScheduleItem {
+  crop_name: string
+  watering_frequency: string
+  next_watering: string
+  status: string
+}
+
+export interface CropLifecycleItem {
+  crop_name: string
+  planting_date: string
+  expected_harvest_date: string
+  status: string
+  progress: number
+}
+
 export const plannerApi = {
   // -----------------------------
   // Tasks
@@ -106,6 +121,119 @@ export const plannerApi = {
   },
 
   // -----------------------------
+  // Dashboard
+  // -----------------------------
+
+  async getDashboardSummary() {
+    const response = await api.get(
+      "/farm-plans/dashboard",
+    )
+
+    return response.data
+  },
+
+  // -----------------------------
+  // Farm Plans
+  // -----------------------------
+
+  async getFarmPlans() {
+    const response = await api.get("/farm-plans")
+    return response.data
+  },
+
+  async getFarmPlan(
+    id: number,
+  ) {
+    const response =
+      await api.get(`/farm-plans/${id}`)
+
+    return response.data
+  },
+
+  async deleteFarmPlan(
+    id: number,
+  ) {
+    const response =
+      await api.delete(`/farm-plans/${id}`)
+
+    return response.data
+  },
+
+  async getCropLifecycle() {
+    const response =
+      await api.get<CropLifecycleItem[]>(
+        "/farm-plans/crop-lifecycle",
+      )
+
+    return response.data
+  },
+
+  // -----------------------------
+  // Recommendations
+  // -----------------------------
+
+  async getRecommendations(
+    season: string,
+    sunlight: string,
+    water: string,
+  ) {
+    const response =
+      await api.get(
+        "/farm-plans/recommendations",
+        {
+          params: {
+            season,
+            sunlight,
+            water,
+          },
+        },
+      )
+
+    return response.data
+  },
+
+  // -----------------------------
+  // Water Schedule
+  // -----------------------------
+
+  async getWaterSchedule() {
+    const response =
+      await api.get<WaterScheduleItem[]>(
+        "/farm-plans/watering",
+      )
+
+    return response.data
+  },
+
+  // -----------------------------
+  // Timeline
+  // -----------------------------
+
+  async getHarvestTimeline() {
+    const response =
+      await api.get(
+        "/farm-plans/timeline",
+      )
+
+    return response.data
+  },
+
+  // -----------------------------
+  // Sustainability
+  // -----------------------------
+
+  async getSustainability(
+    planId: number,
+  ) {
+    const response =
+      await api.get(
+        `/farm-plans/${planId}/sustainability`,
+      )
+
+    return response.data
+  },
+
+  // -----------------------------
   // AI
   // -----------------------------
 
@@ -122,3 +250,4 @@ export const plannerApi = {
     return response.data
   },
 }
+

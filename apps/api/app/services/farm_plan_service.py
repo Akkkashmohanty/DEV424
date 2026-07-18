@@ -2,6 +2,8 @@ from fastapi import HTTPException, status
 
 from app.models.farm_plan import FarmPlan
 
+from app.repositories.crop_repository import CropRepository
+
 from app.repositories.farm_plan_repository import (
     FarmPlanRepository,
 )
@@ -9,6 +11,8 @@ from app.repositories.farm_plan_repository import (
 from app.schemas.farm_plan import (
     FarmPlanCreate,
     FarmPlanUpdate,
+    FarmDashboardResponse,
+    CropRecommendationResponse,
 )
 
 
@@ -16,8 +20,10 @@ class FarmPlanService:
     def __init__(
         self,
         repository: FarmPlanRepository,
+        crop_repository: CropRepository,
     ):
         self.repository = repository
+        self.crop_repository = crop_repository
 
     def create_farm_plan(
         self,
@@ -43,6 +49,38 @@ class FarmPlanService:
         user_id: int,
     ):
         return self.repository.get_by_user(
+            user_id,
+        )
+
+    def get_dashboard_summary(
+        self,
+        user_id: int,
+    ) -> FarmDashboardResponse:
+        return self.repository.get_dashboard_summary(
+            user_id,
+        )
+
+    def get_harvest_timeline(
+        self,
+        user_id: int,
+    ):
+        return self.repository.get_harvest_timeline(
+            user_id,
+        )
+
+    def get_watering_schedule(
+        self,
+        user_id: int,
+    ):
+        return self.repository.get_watering_schedule(
+            user_id,
+        )
+
+    def get_crop_lifecycle(
+        self,
+        user_id: int,
+    ):
+        return self.repository.get_crop_lifecycle(
             user_id,
         )
 
@@ -107,3 +145,59 @@ class FarmPlanService:
         return {
             "message": "Farm plan deleted successfully."
         }
+
+    def get_recommendations(
+        self,
+        season: str,
+        sunlight: str,
+        water: str,
+    ):
+        crops = self.crop_repository.list_active()
+
+        recommendations = []
+
+        for crop in crops:
+            score = 0
+
+            crop_seasons = {
+                s.season.lower()
+                for s in crop.seasons
+            }
+
+            if season.lower() in crop_seasons:
+                score += 40
+
+            if (
+                crop.sunlight_requirement.lower()
+                == sunlight.lower()
+            ):
+                score += 30
+
+            if (
+                crop.water_requirement.lower()
+                == water.lower()
+            ):
+                score += 30
+
+            if score == 0:
+                continue
+
+            recommendations.append(
+                {
+                    "id": crop.id,
+                    "crop": crop.name,
+                    "category": crop.category,
+                    "difficulty": crop.difficulty,
+                    "harvest_days": crop.harvest_days,
+                    "water_requirement": crop.water_requirement,
+                    "sunlight_requirement": crop.sunlight_requirement,
+                    "recommendation_score": score,
+                }
+            )
+
+        recommendations.sort(
+            key=lambda item: item["recommendation_score"],
+            reverse=True,
+        )
+
+        return recommendations

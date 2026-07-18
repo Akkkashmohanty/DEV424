@@ -10,6 +10,9 @@ from app.db.database import get_db
 
 from app.models.user import User
 
+from app.repositories.crop_repository import (
+    CropRepository,
+)
 from app.repositories.farm_plan_repository import (
     FarmPlanRepository,
 )
@@ -22,6 +25,11 @@ from app.schemas.farm_plan import (
     FarmPlanCreate,
     FarmPlanUpdate,
     FarmPlanResponse,
+    FarmDashboardResponse,
+    CropRecommendationResponse,
+    HarvestTimelineItemResponse,
+    WaterScheduleItemResponse,
+    CropLifecycleItemResponse,
 )
 
 router = APIRouter(
@@ -35,6 +43,7 @@ def get_farm_plan_service(
 ) -> FarmPlanService:
     return FarmPlanService(
         FarmPlanRepository(db),
+        CropRepository(db),
     )
 
 
@@ -66,6 +75,85 @@ def list_my_farm_plans(
     service = get_farm_plan_service(db)
 
     return service.list_my_farm_plans(
+        current_user.id,
+    )
+
+
+@router.get(
+    "/dashboard",
+    response_model=FarmDashboardResponse,
+)
+def get_dashboard_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = get_farm_plan_service(db)
+
+    return service.get_dashboard_summary(
+        current_user.id,
+    )
+
+
+@router.get(
+    "/recommendations",
+    response_model=list[CropRecommendationResponse],
+)
+def get_crop_recommendations(
+    season: str,
+    sunlight: str,
+    water: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = get_farm_plan_service(db)
+
+    return service.get_recommendations(
+        season,
+        sunlight,
+        water,
+    )
+
+
+@router.get(
+    "/timeline",
+    response_model=list[HarvestTimelineItemResponse],
+)
+def get_harvest_timeline(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = get_farm_plan_service(db)
+
+    return service.get_harvest_timeline(
+        current_user.id,
+    )
+
+
+@router.get(
+    "/watering",
+    response_model=list[WaterScheduleItemResponse],
+)
+def get_watering_schedule(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = get_farm_plan_service(db)
+
+    return service.get_watering_schedule(
+        current_user.id,
+    )
+
+@router.get(
+    "/crop-lifecycle",
+    response_model=list[CropLifecycleItemResponse],
+)
+def get_crop_lifecycle(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    service = get_farm_plan_service(db)
+
+    return service.get_crop_lifecycle(
         current_user.id,
     )
 
