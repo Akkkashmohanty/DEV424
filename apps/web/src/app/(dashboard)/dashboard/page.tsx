@@ -2,6 +2,19 @@
 
 import Link from "next/link"
 
+import {
+  CalendarDays,
+  Users,
+  ShoppingCart,
+  GraduationCap,
+  CheckCircle2,
+  Clock3,
+  ListTodo,
+  Flame,
+  Star,
+  Trophy,
+} from "lucide-react"
+
 import ProtectedRoute from "@/components/auth/protected-route"
 
 import DashboardSidebar from "@/components/dashboard/layout/dashboard-sidebar"
@@ -45,22 +58,28 @@ function DashboardContent() {
       <DashboardSidebar />
 
       <main className="flex-1 p-4 pb-24 md:p-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-black">
-            Dashboard
-          </h1>
+        {/* Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-black">
+              Welcome Back 👋
+            </h1>
 
-          <p className="mt-2 text-muted-foreground">
-            Track your farming journey.
-          </p>
+            <p className="mt-2 text-muted-foreground">
+              Monitor your farming, marketplace,
+              learning and community activities
+              in one place.
+            </p>
+          </div>
         </div>
 
+        {/* Quick Actions */}
         <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Link
             href="/planner"
-            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-green-600"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-green-600 hover:shadow-lg"
           >
-            <div className="text-2xl">📅</div>
+            <CalendarDays className="h-8 w-8 text-green-600" />
 
             <h3 className="mt-3 font-bold">
               Planner
@@ -73,9 +92,9 @@ function DashboardContent() {
 
           <Link
             href="/community"
-            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-green-600"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-green-600 hover:shadow-lg"
           >
-            <div className="text-2xl">🌱</div>
+            <Users className="h-8 w-8 text-green-600" />
 
             <h3 className="mt-3 font-bold">
               Community
@@ -88,9 +107,9 @@ function DashboardContent() {
 
           <Link
             href="/marketplace"
-            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-green-600"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-green-600 hover:shadow-lg"
           >
-            <div className="text-2xl">🛒</div>
+            <ShoppingCart className="h-8 w-8 text-green-600" />
 
             <h3 className="mt-3 font-bold">
               Marketplace
@@ -103,9 +122,9 @@ function DashboardContent() {
 
           <Link
             href="/learn"
-            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-green-600"
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-green-600 hover:shadow-lg"
           >
-            <div className="text-2xl">🎓</div>
+            <GraduationCap className="h-8 w-8 text-green-600" />
 
             <h3 className="mt-3 font-bold">
               Learning
@@ -117,32 +136,40 @@ function DashboardContent() {
           </Link>
         </div>
 
+        {/* Analytics */}
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           <AnalyticsCard
             title="Total Tasks"
             value={String(data.total_tasks)}
             subtitle="Created"
+            icon={ListTodo}
+            trend="+12%"
           />
 
           <AnalyticsCard
             title="Completed"
             value={String(data.completed_tasks)}
             subtitle="Finished"
+            icon={CheckCircle2}
+            trend="+8%"
           />
 
           <AnalyticsCard
             title="Pending"
             value={String(data.pending_tasks)}
             subtitle="Remaining"
+            icon={Clock3}
           />
 
           <AnalyticsCard
             title="Streak"
             value={`${data.streak_days} Days`}
             subtitle="Keep Growing"
+            icon={Flame}
           />
         </div>
 
+        {/* Progress */}
         <div className="mt-6 grid gap-6 xl:grid-cols-3">
           <div className="xl:col-span-2">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
@@ -155,27 +182,33 @@ function DashboardContent() {
                   title="XP Points"
                   value={String(data.xp_points)}
                   subtitle="Experience"
+                  icon={Star}
                 />
 
                 <AnalyticsCard
                   title="Level"
                   value={String(data.level)}
                   subtitle="Current Level"
+                  icon={Trophy}
                 />
               </div>
             </div>
           </div>
 
           <ProgressRing
-            progress={Math.round(data.completion_rate)}
+            progress={Math.round(
+              data.completion_rate,
+            )}
           />
         </div>
 
+        {/* Activity + Notifications */}
         <div className="mt-6 grid gap-6 xl:grid-cols-2">
           <ActivityTimeline />
           <NotificationCenter />
         </div>
 
+        {/* Badges + Water */}
         <div className="mt-6 grid gap-6 xl:grid-cols-2">
           <BadgeGrid />
           <WaterUsageCard />

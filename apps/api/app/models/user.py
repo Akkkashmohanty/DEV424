@@ -1,7 +1,9 @@
 from datetime import datetime
+from enum import Enum
 
 from sqlalchemy import (
     DateTime,
+    Enum as SqlEnum,
     Integer,
     String,
 )
@@ -13,6 +15,14 @@ from sqlalchemy.orm import (
 )
 
 from app.db.base import Base
+
+
+class UserRole(str, Enum):
+    USER = "USER"
+    FARMER = "FARMER"
+    SELLER = "SELLER"
+    CREATOR = "CREATOR"
+    ADMIN = "ADMIN"
 
 
 class User(Base):
@@ -36,6 +46,12 @@ class User(Base):
 
     hashed_password: Mapped[str] = mapped_column(
         String(255),
+        nullable=False,
+    )
+
+    role: Mapped[UserRole] = mapped_column(
+        SqlEnum(UserRole),
+        default=UserRole.USER,
         nullable=False,
     )
 
@@ -76,6 +92,3 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
-
-
-    

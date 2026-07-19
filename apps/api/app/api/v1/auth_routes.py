@@ -81,10 +81,11 @@ def login(
         user.id,
     )
 
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-    }
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        role=user.role,
+    )
 
 
 @router.get(

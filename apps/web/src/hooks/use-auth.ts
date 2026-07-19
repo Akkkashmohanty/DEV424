@@ -33,8 +33,7 @@ export function useAuth() {
       )
 
       useAuthStore.setState({
-        accessToken:
-          tokenResponse.access_token,
+        accessToken: tokenResponse.access_token,
       })
 
       const currentUser =
@@ -46,7 +45,7 @@ export function useAuth() {
       )
 
       toast.success(
-        "Login successful",
+        `Welcome ${currentUser.full_name}!`,
       )
 
       router.push("/dashboard")

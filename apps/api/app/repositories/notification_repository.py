@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 
 from app.models.notification import Notification
@@ -15,12 +17,14 @@ class NotificationRepository:
         user_id: int,
         title: str,
         message: str,
+        scheduled_for: datetime | None = None,
     ) -> Notification:
 
         notification = Notification(
             user_id=user_id,
             title=title,
             message=message,
+            scheduled_for=scheduled_for or datetime.utcnow(),
         )
 
         self.db.add(notification)

@@ -1,5 +1,5 @@
 from app.auth.passwords import hash_password
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repositories.user_repository import UserRepository
 
 
@@ -24,6 +24,7 @@ class UserService:
             email=email,
             full_name=full_name,
             hashed_password=hash_password(password),
+            role=UserRole.USER,
         )
 
         return self.repo.create(user)

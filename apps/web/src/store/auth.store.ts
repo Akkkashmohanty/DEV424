@@ -5,8 +5,12 @@ import { User } from "@/types/auth.types"
 
 interface AuthState {
   user: User | null
+
   accessToken: string | null
+
   isAuthenticated: boolean
+
+  role: string | null
 
   setAuth: (
     user: User,
@@ -29,6 +33,8 @@ export const useAuthStore = create<AuthState>()(
 
       isAuthenticated: false,
 
+      role: null,
+
       setAuth: (
         user,
         accessToken,
@@ -37,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
           user,
           accessToken,
           isAuthenticated: true,
+          role: user.role,
         }),
 
       setUser: (
@@ -44,6 +51,7 @@ export const useAuthStore = create<AuthState>()(
       ) =>
         set({
           user,
+          role: user.role,
         }),
 
       logout: () =>
@@ -51,6 +59,7 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           accessToken: null,
           isAuthenticated: false,
+          role: null,
         }),
     }),
     {
