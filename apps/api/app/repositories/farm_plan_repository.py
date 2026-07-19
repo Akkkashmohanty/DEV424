@@ -157,7 +157,7 @@ class FarmPlanRepository:
             key=lambda item: item.expected_harvest_date,
         )
 
-    def get_water_schedule(
+    def get_watering_schedule(
         self,
         user_id: int,
     ):
@@ -167,7 +167,14 @@ class FarmPlanRepository:
 
         for plan in plans:
             for crop in plan.crops:
-                schedule.append(crop)
+                schedule.append(
+                    {
+                        "crop_name": crop.crop_name,
+                        "watering_frequency": crop.watering_frequency,
+                        "next_watering": crop.planting_date,
+                        "status": crop.status,
+                    }
+                )
 
         return schedule
 
