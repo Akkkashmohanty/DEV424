@@ -12,16 +12,17 @@ import ProtectedRoute from "@/components/auth/protected-route"
 import PlantingCalendar from "@/components/planner/calendar/planting-calendar"
 import WeatherWidget from "@/components/planner/weather/weather-widget"
 import ReminderList from "@/components/planner/reminders/reminder-list"
+import FarmPlanGenerator from "@/components/planner/planner/farm-plan-generator"
 import BalconyPlanner from "@/components/planner/planner/balcony-planner"
 import HarvestTimeline from "@/components/planner/timeline/harvest-timeline"
 import AIRecommendations from "@/components/planner/recommendations/ai-recommendations"
-import CropHealthCard from "@/components/planner/analytics/crop-health-card"
 
 import WateringSchedule from "@/features/planner/weather/watering-schedule"
+import CropLifecycleCard from "@/features/planner/lifecycle/crop-lifecycle-card"
+import CropHealthCard from "@/features/planner/analytics/crop-health-card"
+import SustainabilityCard from "@/features/planner/analytics/sustainability-card"
 
 import { useDashboardSummary } from "@/features/planner/hooks/use-planner"
-
-import CropLifecycleCard from "@/features/planner/lifecycle/crop-lifecycle-card"
 
 import {
   Card,
@@ -39,8 +40,13 @@ function PlannerContent() {
   return (
     <main className="min-h-screen bg-muted/30 p-6">
       <div className="mx-auto max-w-7xl space-y-6">
+
+        {/* Header */}
+
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+
           <div>
+
             <h1 className="text-4xl font-bold tracking-tight">
               🌱 AI Farm Planner
             </h1>
@@ -50,7 +56,9 @@ function PlannerContent() {
               manage watering schedules and receive
               intelligent seasonal recommendations.
             </p>
+
           </div>
+
         </div>
 
         {/* Summary Cards */}
@@ -58,20 +66,21 @@ function PlannerContent() {
         <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
 
           <Card>
+
             <CardHeader className="flex flex-row items-center justify-between">
+
               <CardTitle className="text-base">
                 Active Crops
               </CardTitle>
 
               <Sprout className="h-5 w-5" />
+
             </CardHeader>
 
             <CardContent>
 
               <p className="text-3xl font-bold">
-                {isLoading
-                  ? "--"
-                  : dashboard?.active_crops ?? 0}
+                {isLoading ? "--" : dashboard?.active_crops ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -79,9 +88,11 @@ function PlannerContent() {
               </p>
 
             </CardContent>
+
           </Card>
 
           <Card>
+
             <CardHeader className="flex flex-row items-center justify-between">
 
               <CardTitle className="text-base">
@@ -95,9 +106,7 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                {isLoading
-                  ? "--"
-                  : dashboard?.water_today ?? 0}
+                {isLoading ? "--" : dashboard?.water_today ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -109,6 +118,7 @@ function PlannerContent() {
           </Card>
 
           <Card>
+
             <CardHeader className="flex flex-row items-center justify-between">
 
               <CardTitle className="text-base">
@@ -122,9 +132,7 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                {isLoading
-                  ? "--"
-                  : dashboard?.harvest_soon ?? 0}
+                {isLoading ? "--" : dashboard?.harvest_soon ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -136,6 +144,7 @@ function PlannerContent() {
           </Card>
 
           <Card>
+
             <CardHeader className="flex flex-row items-center justify-between">
 
               <CardTitle className="text-base">
@@ -149,9 +158,7 @@ function PlannerContent() {
             <CardContent>
 
               <p className="text-3xl font-bold">
-                {isLoading
-                  ? "--"
-                  : dashboard?.planner_tasks ?? 0}
+                {isLoading ? "--" : dashboard?.planner_tasks ?? 0}
               </p>
 
               <p className="text-sm text-muted-foreground">
@@ -188,7 +195,7 @@ function PlannerContent() {
 
         </section>
 
-        {/* AI */}
+        {/* AI Recommendations */}
 
         <section>
 
@@ -196,15 +203,19 @@ function PlannerContent() {
 
         </section>
 
-        {/* Bottom */}
+        {/* Planner Analytics */}
 
         <section className="grid gap-6 xl:grid-cols-3">
 
           <BalconyPlanner />
 
+          <FarmPlanGenerator />
+
           <CropLifecycleCard />
 
           <CropHealthCard />
+
+          <SustainabilityCard />
 
         </section>
 

@@ -15,6 +15,8 @@ from app.schemas.farm_plan import (
     CropRecommendationResponse,
 )
 
+from app.models.farm_plan_crop import FarmPlanCrop
+
 
 class FarmPlanService:
     def __init__(
@@ -40,9 +42,20 @@ class FarmPlanService:
             status="ACTIVE",
         )
 
+        for crop in payload.crops:
+            farm_plan.crops.append(
+                FarmPlanCrop(
+                    crop_name=crop.crop_name,
+                    planting_date=crop.planting_date,
+                    expected_harvest_date=crop.expected_harvest_date,
+                    watering_frequency=crop.watering_frequency,
+                    status="PLANNED",
+                )
+            )
+
         return self.repository.create(
             farm_plan,
-        )
+        )   
 
     def list_my_farm_plans(
         self,

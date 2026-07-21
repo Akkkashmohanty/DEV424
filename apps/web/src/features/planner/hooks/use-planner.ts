@@ -8,7 +8,10 @@ import {
 
 import {
   plannerApi,
-  FarmPlanRequest,
+  type FarmPlanRequest,
+  type CreateFarmPlanPayload,
+  type CropLifecycleItem,
+  type WaterScheduleItem,
 } from "../api/planner.api"
 
 import {
@@ -94,19 +97,12 @@ export function useDeleteTask() {
 // WEATHER
 // ======================================================
 
-export function useWeather(
-  city: string,
-) {
+export function useWeather(city: string) {
   return useQuery({
-    queryKey: [
-      "weather",
-      city,
-    ],
+    queryKey: ["weather", city],
 
     queryFn: () =>
-      plannerApi.getWeather(
-        city,
-      ),
+      plannerApi.getWeather(city),
 
     enabled: city.trim().length > 0,
 
@@ -118,7 +114,42 @@ export function useWeather(
 // FARM PLAN
 // ======================================================
 
+export function useCreateFarmPlan() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (
+      payload: CreateFarmPlanPayload,
+    ) =>
+      plannerApi.createFarmPlan(payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["farm-plans"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["planner-dashboard"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["crop-lifecycle"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["watering-schedule"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["harvest-timeline"],
+      })
+    },
+  })
+}
+
 export function useFarmPlan() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (
       payload: FarmPlanRequest,
@@ -126,6 +157,28 @@ export function useFarmPlan() {
       plannerApi.generateFarmPlan(
         payload,
       ),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["farm-plans"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["planner-dashboard"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["crop-lifecycle"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["watering-schedule"],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["harvest-timeline"],
+      })
+    },
   })
 }
 
@@ -135,14 +188,14 @@ export function useFarmPlan() {
 
 export function useAIAdvice() {
   return useMutation({
-    mutationFn: (
-      payload: any,
-    ) =>
-      plannerApi.getAIAdvice(
-        payload,
-      ),
+    mutationFn: (payload: unknown) =>
+      plannerApi.getAIAdvice(payload),
   })
 }
+
+// ======================================================
+// DASHBOARD
+// ======================================================
 
 export function useDashboardSummary() {
   return useQuery({
@@ -155,13 +208,22 @@ export function useDashboardSummary() {
   })
 }
 
+// ======================================================
+// FARM PLANS
+// ======================================================
+
 export function useFarmPlans() {
   return useQuery({
     queryKey: ["farm-plans"],
+
     queryFn:
       plannerApi.getFarmPlans,
   })
 }
+
+// ======================================================
+// RECOMMENDATIONS
+// ======================================================
 
 export function useRecommendations(
   season: string,
@@ -190,8 +252,12 @@ export function useRecommendations(
   })
 }
 
+// ======================================================
+// HARVEST TIMELINE
+// ======================================================
+
 export function useHarvestTimeline() {
-  return useQuery({
+  return useQuery<CropLifecycleItem[]>({
     queryKey: ["harvest-timeline"],
 
     queryFn:
@@ -199,19 +265,25 @@ export function useHarvestTimeline() {
   })
 }
 
+// ======================================================
+// WATER SCHEDULE
+// ======================================================
+
 export function useWaterSchedule() {
-  return useQuery({
-    queryKey: [
-      "watering-schedule",
-    ],
+  return useQuery<WaterScheduleItem[]>({
+    queryKey: ["watering-schedule"],
 
     queryFn:
       plannerApi.getWaterSchedule,
   })
 }
 
+// ======================================================
+// CROP LIFECYCLE
+// ======================================================
+
 export function useCropLifecycle() {
-  return useQuery({
+  return useQuery<CropLifecycleItem[]>({
     queryKey: ["crop-lifecycle"],
 
     queryFn:

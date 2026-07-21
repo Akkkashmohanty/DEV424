@@ -1,80 +1,316 @@
 "use client"
 
-import { Sparkles, ArrowRight, Lightbulb, Sun, Droplet, Layers } from "lucide-react"
+import { useState } from "react"
+import {
+  Sparkles,
+  ArrowRight,
+  Leaf,
+  Droplets,
+  Sun,
+  Loader2,
+  AlertCircle,
+} from "lucide-react"
 
-const adviceList = [
-  {
-    title: "Optimize Sunlight for Spinach",
-    desc: "Shift your spinach bed from East Balcony Slot B2 to West Balcony Slot A1. Spinach requires at least 4 hours of morning sun, which Slot A1 receives 30% more of currently.",
-    icon: Sun,
-    color: "text-amber-500 bg-amber-500/10",
-  },
-  {
-    title: "Automated Crop Companionship",
-    desc: "Plant Sweet Basil right next to your Cherry Tomatoes. Basil naturally deters thrips and hornworms, improving tomato yield by up to 20% while saving soil space.",
-    icon: Layers,
-    color: "text-purple-500 bg-purple-500/10",
-  },
-  {
-    title: "Nutrient Adjustment Schedule",
-    desc: "Soil nitrogen in Slot C3 (Curry Leaves) is slightly depleted. Apply organic seaweed extract or spent coffee grounds during tomorrow morning's watering workout.",
-    icon: Droplet,
-    color: "text-blue-500 bg-blue-500/10",
-  },
+import { useRecommendations } from "@/features/planner/hooks/use-planner"
+
+type Recommendation = {
+  id: number
+  crop: string
+  category: string
+  difficulty: string
+  harvest_days: number
+  water_requirement: string
+  sunlight_requirement: string
+  recommendation_score: number
+}
+
+const seasons = ["Spring", "Summer", "Monsoon", "Autumn", "Winter"]
+
+const sunlightOptions = [
+  "Full Sun",
+  "Partial Sun",
+]
+
+const waterOptions = [
+  "Low",
+  "Medium",
+  "High",
 ]
 
 export default function AIRecommendations() {
+  const [season, setSeason] = useState("Summer")
+  const [sunlight, setSunlight] = useState("Full")
+  const [water, setWater] = useState("Medium")
+
+  const {
+    data = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useRecommendations(
+    season,
+    sunlight,
+    water,
+  )
+
+  const recommendations =
+    data as Recommendation[]
+
   return (
-    <div className="rounded-3xl border border-green-600/20 bg-green-500/[0.01] p-6 shadow-sm">
+    <div className="rounded-3xl border border-green-600/20 bg-card p-6 shadow-sm">
+
       {/* Header */}
+
       <div className="flex items-center justify-between mb-6">
+
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 text-green-600">
-            <Sparkles className="h-4.5 w-4.5 text-green-600 animate-pulse" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/10">
+            <Sparkles className="h-5 w-5 text-green-600" />
           </span>
-          <h3 className="text-xl font-bold tracking-tight bg-gradient-to-r from-green-800 to-emerald-800 dark:from-green-300 dark:to-emerald-300 bg-clip-text text-transparent">
-            AI Crop Recommendations
-          </h3>
+
+          <div>
+            <h3 className="text-xl font-bold">
+              AI Crop Recommendations
+            </h3>
+
+            <p className="text-xs text-muted-foreground">
+              Personalized recommendations from your Farm Planner
+            </p>
+          </div>
         </div>
-        <span className="text-xs font-semibold text-green-700 dark:text-green-400 bg-green-500/10 px-3 py-1 rounded-full">
-          Powered by AgriGym AI v1.2
-        </span>
+
+        <button
+          onClick={() => refetch()}
+          className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"
+        >
+          Refresh
+        </button>
+
       </div>
 
-      {/* Advice List Grid */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {adviceList.map((adv, idx) => {
-          const Icon = adv.icon
-          return (
-            <div
-              key={idx}
-              className="flex flex-col justify-between border border-green-600/10 hover:border-green-600/30 bg-card p-5 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-md"
-            >
-              <div>
-                <span className={`inline-flex h-9 w-9 items-center justify-center rounded-xl ${adv.color} mb-4`}>
-                  <Icon className="h-4.5 w-4.5" />
-                </span>
+      {/* Filters */}
 
-                <h4 className="font-semibold text-sm leading-snug text-foreground">
-                  {adv.title}
-                </h4>
+      <div className="grid md:grid-cols-3 gap-4 mb-8">
 
-                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                  {adv.desc}
-                </p>
-              </div>
+        <div>
+          <label className="text-xs font-semibold text-muted-foreground">
+            Season
+          </label>
 
-              <div className="mt-6 border-t border-border/40 pt-3 flex items-center justify-between">
-                <span className="text-[10px] text-green-600 dark:text-green-400 font-bold flex items-center gap-1">
-                  <Lightbulb className="h-3 w-3" />
-                  Smart Recommendation
-                </span>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground hover:text-green-600 transition" />
-              </div>
-            </div>
-          )
-        })}
+          <select
+            className="mt-2 w-full rounded-xl border bg-background px-3 py-2"
+            value={season}
+            onChange={(e) =>
+              setSeason(e.target.value)
+            }
+          >
+            {seasons.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-xs font-semibold text-muted-foreground">
+            Sunlight
+          </label>
+
+          <select
+            className="mt-2 w-full rounded-xl border bg-background px-3 py-2"
+            value={sunlight}
+            onChange={(e) =>
+              setSunlight(e.target.value)
+            }
+          >
+            {sunlightOptions.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-xs font-semibold text-muted-foreground">
+            Water
+          </label>
+
+          <select
+            className="mt-2 w-full rounded-xl border bg-background px-3 py-2"
+            value={water}
+            onChange={(e) =>
+              setWater(e.target.value)
+            }
+          >
+            {waterOptions.map((item) => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+
       </div>
+
+      {/* Loading */}
+
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </div>
+      )}
+
+      {/* Error */}
+
+      {!isLoading && isError && (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <AlertCircle className="h-10 w-10 text-red-500 mb-3" />
+          <h4 className="font-semibold">Unable to load recommendations</h4>
+          <p className="text-sm text-muted-foreground mt-1">
+            Please try refreshing or changing the filters.
+          </p>
+        </div>
+      )}
+
+      {/* Empty */}
+
+      {!isLoading &&
+        !isError &&
+        recommendations.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Leaf className="h-10 w-10 text-green-600 mb-3" />
+            <h4 className="font-semibold">
+              No matching crops found
+            </h4>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              Try changing season, sunlight or water availability.
+            </p>
+          </div>
+        )}
+
+      {/* Cards */}
+
+      {!isLoading &&
+        !isError &&
+        recommendations.length > 0 && (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {recommendations.map((crop) => (
+              <div
+                key={crop.id}
+                className="rounded-2xl border border-green-600/10 bg-background p-5 hover:border-green-500/30 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+
+                    <h4 className="font-bold text-lg">
+                      {crop.crop}
+                    </h4>
+
+                    <p className="text-xs text-muted-foreground">
+                      {crop.category}
+                    </p>
+
+                  </div>
+
+                  <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-bold text-green-700">
+                    {crop.recommendation_score}%
+                  </span>
+                </div>
+
+                <div className="mt-5 space-y-3">
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Leaf className="h-4 w-4 text-green-600" />
+                      Difficulty
+                    </span>
+
+                    <span className="font-medium">
+                      {crop.difficulty}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Sun className="h-4 w-4 text-amber-500" />
+                      Sunlight
+                    </span>
+
+                    <span className="font-medium">
+                      {crop.sunlight_requirement}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Droplets className="h-4 w-4 text-blue-500" />
+                      Water
+                    </span>
+
+                    <span className="font-medium">
+                      {crop.water_requirement}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span>
+                      Harvest
+                    </span>
+
+                    <span className="font-semibold text-green-700">
+                      {crop.harvest_days} days
+                    </span>
+                  </div>
+
+                </div>
+
+                <div className="mt-5 border-t pt-4 flex items-center justify-between">
+
+                  <span className="text-xs text-muted-foreground">
+                    AI Match Score
+                  </span>
+
+                  <ArrowRight className="h-4 w-4 text-green-600" />
+
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
+      {/* Footer */}
+
+      <div className="mt-8 border-t border-border pt-4">
+        <div className="flex items-start gap-2 rounded-xl bg-green-50 dark:bg-green-950/20 p-4">
+          <Sparkles className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+
+          <div>
+            <p className="text-sm font-semibold">
+              Smart Recommendation Engine
+            </p>
+
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+              Recommendations are calculated using season compatibility,
+              sunlight requirements and water availability from your crop
+              database. Crops with the highest recommendation score are shown
+              first.
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }

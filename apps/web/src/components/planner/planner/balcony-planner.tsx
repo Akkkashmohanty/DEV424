@@ -1,210 +1,375 @@
 "use client"
 
-import { useState } from "react"
-import { LayoutGrid, Sprout, Sun, Info, Trash2, CheckCircle2 } from "lucide-react"
+import { useMemo, useState } from "react"
+import {
+  LayoutGrid,
+  Sprout,
+  Sun,
+  Info,
+  Droplets,
+  CalendarDays,
+  MapPin,
+} from "lucide-react"
 
-interface GridSlot {
-  id: string
-  name: string
-  crop: string
-  sunHours: number
-  moisture: number
-  status: "Planted" | "Empty"
+import { useFarmPlans } from "@/features/planner/hooks/use-planner"
+
+type FarmPlanCrop = {
+  id: number
+  crop_name: string
+  planting_date: string
+  expected_harvest_date: string
+  watering_frequency: string
+  status: string
 }
 
-const initialSlots: GridSlot[] = [
-  { id: "A1", name: "Slot A1 (West)", crop: "Cherry Tomatoes", sunHours: 6, moisture: 82, status: "Planted" },
-  { id: "A2", name: "Slot A2 (West)", crop: "Baby Spinach", sunHours: 4, moisture: 64, status: "Planted" },
-  { id: "B1", name: "Slot B1 (North)", crop: "Organic Chili", sunHours: 5, moisture: 78, status: "Planted" },
-  { id: "B2", name: "Slot B2 (North)", crop: "Empty", sunHours: 3, moisture: 0, status: "Empty" },
-  { id: "C1", name: "Slot C1 (East)", crop: "Curry Leaves", sunHours: 5, moisture: 90, status: "Planted" },
-  { id: "C2", name: "Slot C2 (East)", crop: "Empty", sunHours: 4, moisture: 0, status: "Empty" },
-]
-
-const availableCrops = ["Spinach", "Tomatoes", "Chili", "Mint", "Basil", "Coriander"]
+type FarmPlan = {
+  id: number
+  city: string
+  garden_type: string
+  garden_size: string
+  sunlight: string
+  water_availability: string
+  status: string
+  created_at: string
+  crops: FarmPlanCrop[]
+}
 
 export default function BalconyPlanner() {
-  const [slots, setSlots] = useState<GridSlot[]>(initialSlots)
-  const [selectedSlot, setSelectedSlot] = useState<GridSlot | null>(null)
-  const [plantingCrop, setPlantingCrop] = useState("")
+  const {
+    data,
+    isLoading,
+  } = useFarmPlans()
 
-  const selectSlot = (slot: GridSlot) => {
-    setSelectedSlot(slot)
-    setPlantingCrop(slot.crop === "Empty" ? "Spinach" : slot.crop)
-  }
+  const farmPlans = (data ?? []) as FarmPlan[]
 
-  const plantCrop = () => {
-    if (!selectedSlot) return
-    setSlots(
-      slots.map((s) =>
-        s.id === selectedSlot.id
-          ? {
-            ...s,
-            crop: plantingCrop,
-            status: plantingCrop === "Empty" ? "Empty" : "Planted",
-            moisture: plantingCrop === "Empty" ? 0 : 80,
-          }
-          : s
+  const allCrops = useMemo(
+    () =>
+      farmPlans.flatMap((plan) =>
+        plan.crops.map((crop) => ({
+          ...crop,
+          plan,
+        })),
+      ),
+    [farmPlans],
+  )
+
+  const [selectedCropId, setSelectedCropId] =
+    useState<number | null>(null)
+
+  const selectedCrop =
+    allCrops.find(
+      (crop) => crop.id === selectedCropId,
+    ) ?? null
+
+  const totalSlots = Math.max(
+    allCrops.length,
+    6,
+  )
+
+  const occupiedSlots =
+    allCrops.length
+
+  const efficiency =
+    totalSlots === 0
+      ? 0
+      : Math.round(
+        (occupiedSlots / totalSlots) * 100,
       )
+
+  if (isLoading) {
+    return (
+      <div className="rounded-3xl border border-border bg-card p-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-7 w-64 rounded bg-muted" />
+          <div className="grid grid-cols-2 gap-4">
+            {Array.from({
+              length: 6,
+            }).map((_, index) => (
+              <div
+                key={index}
+                className="h-32 rounded-xl bg-muted"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     )
-    setSelectedSlot(null)
   }
 
-  const removeCrop = (id: string) => {
-    setSlots(
-      slots.map((s) =>
-        s.id === id
-          ? {
-            ...s,
-            crop: "Empty",
-            status: "Empty",
-            moisture: 0,
-          }
-          : s
-      )
-    )
-    setSelectedSlot(null)
-  }
+  if (allCrops.length === 0) {
+    return (
+      <div className="rounded-3xl border border-border bg-card p-8 text-center">
+        <Sprout className="mx-auto mb-4 h-10 w-10 text-green-600" />
 
-  const occupiedCount = slots.filter((s) => s.status === "Planted").length
-  const efficiency = Math.round((occupiedCount / slots.length) * 100)
+        <h3 className="text-xl font-bold">
+          No Saved Farm Plans
+        </h3>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          Generate a farm plan and click
+          <strong> Save Farm Plan </strong>
+          to see it here.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold tracking-tight">Balcony Layout Planner</h3>
-        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <LayoutGrid className="h-3.5 w-3.5" />
-          Grid: 3x2 Setup
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-xl font-bold tracking-tight">
+          Balcony Layout Planner
+        </h3>
+
+        <span className="flex items-center gap-2 text-xs text-muted-foreground">
+          <LayoutGrid className="h-4 w-4" />
+          {occupiedSlots} Saved Crops
         </span>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Balcony Grid Layout Visual */}
-        <div className="md:col-span-2 grid grid-cols-2 gap-4 border border-border/60 bg-muted/15 rounded-2xl p-4 min-h-[300px]">
-          {slots.map((slot) => {
-            const isSelected = selectedSlot?.id === slot.id
-            const isEmpty = slot.status === "Empty"
+        {/* Crop Grid */}
+
+        <div className="grid gap-4 md:col-span-2 md:grid-cols-2">
+          {allCrops.map((crop) => {
+            const selected =
+              selectedCropId === crop.id
 
             return (
               <button
-                key={slot.id}
-                onClick={() => selectSlot(slot)}
-                className={`flex flex-col justify-between p-4 border rounded-xl text-left transition-all ${isSelected
-                  ? "border-green-600 ring-1 ring-green-600 bg-green-500/[0.03]"
-                  : isEmpty
-                    ? "border-dashed border-border hover:border-muted-foreground/40 bg-card/40"
-                    : "border-border hover:border-green-600 bg-card hover:shadow-sm"
+                key={crop.id}
+                onClick={() =>
+                  setSelectedCropId(crop.id)
+                }
+                className={`rounded-2xl border p-4 text-left transition-all ${selected
+                  ? "border-green-600 ring-1 ring-green-600"
+                  : "border-border hover:border-green-600"
                   }`}
               >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{slot.id}</span>
-                  {!isEmpty && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-green-500/10 text-green-700">
-                      <Sprout className="h-3.5 w-3.5" />
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-4">
-                  <h4 className="font-bold text-xs text-foreground leading-snug">{slot.name}</h4>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    {isEmpty ? "Click to plant" : slot.crop}
-                  </p>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between w-full text-[9px] text-muted-foreground/80 border-t border-border/40 pt-2">
-                  <span className="flex items-center gap-0.5">
-                    <Sun className="h-3 w-3 text-amber-500" />
-                    {slot.sunHours} hrs
+                <div className="flex items-center justify-between">
+                  <span className="rounded-lg bg-green-500/10 p-2">
+                    <Sprout className="h-4 w-4 text-green-700" />
                   </span>
-                  {!isEmpty && <span>Moisture: {slot.moisture}%</span>}
+
+                  <span
+                    className={`rounded-full px-2 py-1 text-[10px] font-bold ${crop.status === "ACTIVE"
+                      ? "bg-green-500/10 text-green-700"
+                      : "bg-muted text-muted-foreground"
+                      }`}
+                  >
+                    {crop.status}
+                  </span>
+                </div>
+
+                <h4 className="mt-4 text-base font-bold">
+                  {crop.crop_name}
+                </h4>
+
+                <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    Planted: {crop.planting_date}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Sun className="h-3.5 w-3.5 text-amber-500" />
+                    {crop.plan.sunlight}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Droplets className="h-3.5 w-3.5 text-blue-500" />
+                    {crop.watering_frequency}
+                  </div>
                 </div>
               </button>
             )
           })}
         </div>
 
-        {/* Slot Inspector / Controller Panel */}
-        <div className="flex flex-col justify-between border border-border/60 bg-muted/20 p-5 rounded-2xl">
-          {selectedSlot ? (
-            <div className="space-y-4">
+        {/* Inspector */}
+
+        <div className="rounded-2xl border border-border bg-muted/20 p-5">
+
+          {selectedCrop ? (
+            <div className="space-y-5">
+
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground">INSPECTING SLOT</span>
-                <h4 className="font-extrabold text-sm text-foreground mt-1">{selectedSlot.name}</h4>
+
+                <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                  Selected Crop
+                </span>
+
+                <h4 className="mt-1 text-lg font-bold">
+                  {selectedCrop.crop_name}
+                </h4>
+
               </div>
 
-              {selectedSlot.status === "Planted" ? (
-                <div className="space-y-3">
-                  <div className="bg-card border border-border/50 rounded-xl p-3 text-xs space-y-1.5">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Planted crop:</span>
-                      <span className="font-bold text-foreground">{selectedSlot.crop}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Sunlight duration:</span>
-                      <span className="font-bold text-foreground">{selectedSlot.sunHours} hrs/day</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Soil hydration:</span>
-                      <span className="font-bold text-blue-600">{selectedSlot.moisture}%</span>
-                    </div>
-                  </div>
+              <div className="space-y-3 rounded-xl border bg-background p-4 text-sm">
 
-                  <button
-                    onClick={() => removeCrop(selectedSlot.id)}
-                    className="w-full flex items-center justify-center gap-1.5 border border-red-500/20 hover:border-red-500/40 bg-red-500/5 hover:bg-red-500/10 text-red-600 rounded-xl py-2 font-bold text-xs transition"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Harvest / Remove Crop
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <span className="text-xs text-muted-foreground block font-medium">Select Crop to Plant:</span>
-                  <select
-                    value={plantingCrop}
-                    onChange={(e) => setPlantingCrop(e.target.value)}
-                    className="w-full h-9 border border-border bg-background rounded-xl px-2 text-xs focus:outline-none focus:ring-1 focus:ring-green-600"
-                  >
-                    {availableCrops.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    City
+                  </span>
 
-                  <button
-                    onClick={plantCrop}
-                    className="w-full flex items-center justify-center gap-1.5 bg-green-600 hover:bg-green-700 text-white rounded-xl py-2 font-bold text-xs transition"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Plant Crop Now
-                  </button>
+                  <span className="font-semibold">
+                    {selectedCrop.plan.city}
+                  </span>
                 </div>
-              )}
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Garden
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.plan.garden_type}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Size
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.plan.garden_size}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Sunlight
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.plan.sunlight}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Water
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.plan.water_availability}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Planting
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.planting_date}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Harvest
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.expected_harvest_date}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    Watering
+                  </span>
+
+                  <span className="font-semibold">
+                    {selectedCrop.watering_frequency}
+                  </span>
+                </div>
+
+              </div>
+
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
+
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground">GRID METRICS</span>
-                <h4 className="font-extrabold text-sm text-foreground mt-1">Spatial Utilization</h4>
+
+                <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                  Planner Metrics
+                </span>
+
+                <h4 className="mt-1 text-lg font-bold">
+                  Farm Summary
+                </h4>
+
               </div>
 
-              <div className="bg-card border border-border/50 rounded-xl p-4 text-center">
-                <div className="text-3xl font-extrabold text-green-600">{efficiency}%</div>
-                <p className="text-[11px] text-muted-foreground mt-1">Layout Space Efficiency</p>
-                <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-3">
-                  <div className="h-full bg-green-600 rounded-full" style={{ width: `${efficiency}%` }} />
+              <div className="rounded-xl border bg-background p-4 text-center">
+
+                <div className="text-3xl font-extrabold text-green-600">
+                  {efficiency}%
                 </div>
+
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Space Utilization
+                </p>
+
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted">
+
+                  <div
+                    className="h-full rounded-full bg-green-600"
+                    style={{
+                      width: `${efficiency}%`,
+                    }}
+                  />
+
+                </div>
+
               </div>
 
-              <div className="flex gap-2 items-start text-[10px] text-muted-foreground leading-normal mt-2">
-                <Info className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
-                <span>Click on any slot to edit crop status, check sunlight parameters, or plant seedlings.</span>
+              <div className="space-y-3 rounded-xl border bg-background p-4 text-sm">
+
+                <div className="flex items-center justify-between">
+                  <span>Total Farm Plans</span>
+                  <strong>{farmPlans.length}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Total Crops</span>
+                  <strong>{allCrops.length}</strong>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Garden Types</span>
+                  <strong>
+                    {
+                      new Set(
+                        farmPlans.map(
+                          (x) => x.garden_type,
+                        ),
+                      ).size
+                    }
+                  </strong>
+                </div>
+
               </div>
+
+              <div className="flex items-start gap-2 rounded-xl bg-green-500/5 p-3 text-xs text-muted-foreground">
+
+                <Info className="mt-0.5 h-4 w-4 text-green-600" />
+
+                <span>
+                  Select any saved crop to view
+                  complete planting details.
+                </span>
+
+              </div>
+
             </div>
           )}
+
         </div>
       </div>
     </div>

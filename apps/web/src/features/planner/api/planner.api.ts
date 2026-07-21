@@ -16,6 +16,21 @@ export interface FarmPlanRequest {
   water_availability: string
 }
 
+export interface CreateFarmPlanPayload {
+  city: string
+  garden_type: string
+  garden_size: string
+  sunlight: string
+  water_availability: string
+
+  crops: {
+    crop_name: string
+    planting_date: string
+    expected_harvest_date: string
+    watering_frequency: string
+  }[]
+}
+
 export interface WaterScheduleItem {
   crop_name: string
   watering_frequency: string
@@ -29,6 +44,17 @@ export interface CropLifecycleItem {
   expected_harvest_date: string
   status: string
   progress: number
+}
+
+export interface CropRecommendation {
+  id: number
+  crop: string
+  category: string
+  difficulty: string
+  harvest_days: number
+  water_requirement: string
+  sunlight_requirement: string
+  recommendation_score: number
 }
 
 export const plannerApi = {
@@ -106,6 +132,16 @@ export const plannerApi = {
   // -----------------------------
   // Farm Planner
   // -----------------------------
+  async createFarmPlan(
+    payload: CreateFarmPlanPayload,
+  ) {
+    const response = await api.post(
+      "/farm-plans",
+      payload,
+    )
+
+    return response.data
+  },
 
   async generateFarmPlan(
     payload: FarmPlanRequest,
@@ -176,7 +212,8 @@ export const plannerApi = {
     season: string,
     sunlight: string,
     water: string,
-  ) {
+  ): Promise<CropRecommendation[]> {
+
     const response =
       await api.get(
         "/farm-plans/recommendations",

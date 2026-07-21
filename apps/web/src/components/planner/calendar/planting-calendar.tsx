@@ -1,127 +1,464 @@
 "use client"
 
-import { useState } from "react"
-import { Calendar, ChevronLeft, ChevronRight, Sprout, Award, HelpCircle } from "lucide-react"
+import { useMemo, useState } from "react"
 
-interface CalendarEvent {
-  day: number
-  title: string
-  crop: string
-  type: "sow" | "transplant" | "harvest"
-  color: string
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Sprout,
+  Award,
+} from "lucide-react"
+
+import { useHarvestTimeline } from "@/features/planner/hooks/use-planner"
+
+type TimelineItem = {
+  crop_name: string
+  planting_date: string
+  expected_harvest_date: string
+  status: string
 }
 
-const events: CalendarEvent[] = [
-  { day: 4, title: "Sow Baby Spinach seeds", crop: "Spinach", type: "sow", color: "bg-blue-500" },
-  { day: 12, title: "Transplant Chili Seedlings", crop: "Chili", type: "transplant", color: "bg-purple-500" },
-  { day: 18, title: "Harvest Cherry Tomatoes", crop: "Tomatoes", type: "harvest", color: "bg-green-600" },
-  { day: 26, title: "Sow Mint stems in pot", crop: "Mint", type: "sow", color: "bg-blue-500" },
-]
+type CalendarEvent = {
+  date: Date
+  crop: string
+  title: string
+  type: "planting" | "harvest"
+  status: string
+}
 
 export default function PlantingCalendar() {
-  const [currentMonth, setCurrentMonth] = useState("May 2026")
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1)
-  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const {
+    data,
+    isLoading,
+  } = useHarvestTimeline()
 
-  // We start May 2026 on a Friday (5 empty slots before Day 1)
-  const emptySlots = Array.from({ length: 5 }, (_, i) => i)
+  const timeline = (data ?? []) as TimelineItem[]
+
+  const [currentMonth, setCurrentMonth] = useState(
+    new Date(),
+  )
+
+  const events = useMemo<CalendarEvent[]>(() => {
+    const items: CalendarEvent[] = []
+
+    timeline.forEach((crop) => {
+      items.push({
+        crop: crop.crop_name,
+        title: `Plant ${crop.crop_name}`,
+        type: "planting",
+        status: crop.status,
+        date: new Date(crop.planting_date),
+      })
+
+      items.push({
+        crop: crop.crop_name,
+        title: `Harvest ${crop.crop_name}`,
+        type: "harvest",
+        status: crop.status,
+        date: new Date(
+          crop.expected_harvest_date,
+        ),
+      })
+    })
+
+    return items.sort(
+      (a, b) =>
+        a.date.getTime() -
+        b.date.getTime(),
+    )
+  }, [timeline])
+
+  const [selectedDate, setSelectedDate] =
+    useState<Date | null>(null)
+
+  const month = currentMonth.getMonth()
+
+  const year = currentMonth.getFullYear()
+
+  const monthLabel =
+    currentMonth.toLocaleString(
+      "default",
+      {
+        month: "long",
+        year: "numeric",
+      },
+    )
+
+  const firstDay = new Date(
+    year,
+    month,
+    1,
+  ).getDay()
+
+  const daysInMonth = new Date(
+    year,
+    month + 1,
+    0,
+  ).getDate()
+
+  const days = Array.from(
+    {
+      length: daysInMonth,
+    },
+    (_, i) => i + 1,
+  )
+
+  const emptySlots = Array.from(
+    {
+      length: firstDay,
+    },
+    (_, i) => i,
+  )
+
+  const selectedEvents =
+    selectedDate == null
+      ? []
+      : events.filter(
+        (event) =>
+          event.date.toDateString() ===
+          selectedDate.toDateString(),
+      )
+
+  const previousMonth = () =>
+    setCurrentMonth(
+      new Date(year, month - 1, 1),
+    )
+
+  const nextMonth = () =>
+    setCurrentMonth(
+      new Date(year, month + 1, 1),
+    )
+
+  if (isLoading) {
+    return (
+      <div className="rounded-3xl border border-border bg-card p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-48 rounded bg-muted" />
+          <div className="grid grid-cols-7 gap-2">
+            {Array.from({
+              length: 35,
+            }).map((_, index) => (
+              <div
+                key={index}
+                className="aspect-square rounded-xl bg-muted"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="rounded-3xl border border-border bg-card p-8 text-center">
+
+        <Calendar className="mx-auto mb-4 h-10 w-10 text-green-600" />
+
+        <h3 className="text-xl font-bold">
+          No Planting Events
+        </h3>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          Save a farm plan to populate
+          the planting calendar.
+        </p>
+
+      </div>
+    )
+  }
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10 text-green-700">
-            <Calendar className="h-4.5 w-4.5" />
+
+      <div className="mb-6 flex items-center justify-between">
+
+        <div className="flex items-center gap-3">
+
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/10">
+
+            <Calendar className="h-5 w-5 text-green-700" />
+
           </span>
-          <h3 className="text-xl font-bold tracking-tight">Planting Calendar</h3>
+
+          <div>
+
+            <h3 className="text-xl font-bold">
+              Planting Calendar
+            </h3>
+
+            <p className="text-xs text-muted-foreground">
+              Generated from your saved farm plans
+            </p>
+
+          </div>
+
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="p-1.5 border border-border hover:bg-muted rounded-lg transition">
+
+          <button
+            onClick={previousMonth}
+            className="rounded-lg border p-2 hover:bg-muted"
+          >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <span className="text-xs font-bold text-foreground min-w-[70px] text-center">{currentMonth}</span>
-          <button className="p-1.5 border border-border hover:bg-muted rounded-lg transition">
+
+          <span className="min-w-[120px] text-center text-sm font-semibold">
+            {monthLabel}
+          </span>
+
+          <button
+            onClick={nextMonth}
+            className="rounded-lg border p-2 hover:bg-muted"
+          >
             <ChevronRight className="h-4 w-4" />
           </button>
+
         </div>
+
       </div>
 
-      {/* Weekday Labels */}
-      <div className="grid grid-cols-7 gap-2 text-center text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-2">
-        {weekdays.map((day) => (
-          <div key={day} className="py-1">
+      {/* Weekdays */}
+
+      <div className="mb-2 grid grid-cols-7 gap-2">
+
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
+
+          <div
+            key={day}
+            className="py-2 text-center text-xs font-bold uppercase text-muted-foreground"
+          >
             {day}
           </div>
-        ))}
-      </div>
 
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2">
-        {/* Empty slots for spacing */}
-        {emptySlots.map((val) => (
-          <div key={`empty-${val}`} className="aspect-square bg-muted/5 border border-transparent rounded-xl" />
         ))}
 
-        {/* Days */}
-        {daysInMonth.map((day) => {
-          const dayEvents = events.filter((e) => e.day === day)
-          const isToday = day === 26
-
-          return (
-            <div
-              key={day}
-              className={`aspect-square flex flex-col justify-between p-1.5 border rounded-xl relative transition-all ${
-                isToday
-                  ? "border-green-600 bg-green-500/[0.03] ring-1 ring-green-600"
-                  : "border-border/60 hover:border-green-600/35 bg-card hover:bg-muted/10 hover:shadow-sm"
-              }`}
-            >
-              <span className={`text-[10px] font-bold ${isToday ? "text-green-700" : "text-muted-foreground"}`}>
-                {day}
-              </span>
-
-              {/* Event indicators */}
-              <div className="flex flex-wrap gap-0.5 justify-end mt-1">
-                {dayEvents.map((evt, idx) => (
-                  <span
-                    key={idx}
-                    title={`${evt.crop}: ${evt.title}`}
-                    className={`h-1.5 w-1.5 rounded-full shrink-0 ${evt.color}`}
-                  />
-                ))}
-              </div>
-            </div>
-          )
-        })}
       </div>
 
-      {/* Event Details Legend */}
-      <div className="mt-6 border-t border-border pt-6">
-        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Key Season Reminders</h4>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {events.map((evt) => {
-            let badgeColor = "bg-blue-500/10 text-blue-600"
-            if (evt.type === "harvest") badgeColor = "bg-green-500/10 text-green-700"
-            if (evt.type === "transplant") badgeColor = "bg-purple-500/10 text-purple-600"
+      {/* Calendar */}
 
-            return (
-              <div key={evt.day} className="flex items-center justify-between p-2.5 border border-border/50 rounded-xl text-xs bg-muted/10">
-                <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-[10px] text-muted-foreground bg-muted h-5 w-5 flex items-center justify-center rounded-md">
-                    {evt.day}
-                  </span>
-                  <span className="font-semibold text-foreground">{evt.title}</span>
-                </div>
-                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0 ${badgeColor}`}>
-                  {evt.type}
-                </span>
-              </div>
-            )
-          })}
+      <div className="grid gap-6 lg:grid-cols-3">
+
+        <div className="lg:col-span-2">
+
+          <div className="grid grid-cols-7 gap-2">
+
+            {emptySlots.map((slot) => (
+
+              <div
+                key={slot}
+                className="aspect-square"
+              />
+
+            ))}
+
+            {days.map(day => {
+
+              const date = new Date(
+                year,
+                month,
+                day,
+              )
+
+              const today =
+                new Date().toDateString() ===
+                date.toDateString()
+
+              const dayEvents =
+                events.filter(
+                  e =>
+                    e.date.toDateString() ===
+                    date.toDateString(),
+                )
+
+              return (
+
+                <button
+                  key={day}
+                  onClick={() =>
+                    setSelectedDate(date)
+                  }
+                  className={`aspect-square rounded-xl border p-2 text-left transition ${today
+                    ? "border-green-600 ring-1 ring-green-600"
+                    : "border-border hover:border-green-600"
+                    }`}
+                >
+
+                  <div className="flex items-center justify-between">
+
+                    <span className="text-xs font-bold">
+                      {day}
+                    </span>
+
+                    {dayEvents.length > 0 && (
+
+                      <span className="rounded-full bg-green-600 px-2 py-0.5 text-[10px] text-white">
+                        {dayEvents.length}
+                      </span>
+
+                    )}
+
+                  </div>
+
+                  <div className="mt-2 space-y-1">
+
+                    {dayEvents.slice(0, 2).map(event => (
+
+                      <div
+                        key={event.title}
+                        className={`truncate rounded px-1 py-0.5 text-[9px] ${event.type === "planting"
+                          ? "bg-blue-500/10 text-blue-600"
+                          : "bg-green-500/10 text-green-700"
+                          }`}
+                      >
+
+                        {event.crop}
+
+                      </div>
+
+                    ))}
+
+                  </div>
+
+                </button>
+
+              )
+
+            })}
+
+          </div>
+
         </div>
+
+        {/* Details */}
+
+        <div className="rounded-2xl border border-border bg-muted/20 p-5">
+
+          {selectedEvents.length > 0 ? (
+
+            <div className="space-y-4">
+
+              <h4 className="font-bold">
+                Selected Day
+              </h4>
+
+              {selectedEvents.map(event => (
+
+                <div
+                  key={`${event.title}-${event.type}`}
+                  className="rounded-xl border bg-background p-4"
+                >
+
+                  <div className="flex items-center justify-between">
+
+                    <span className="font-semibold">
+
+                      {event.crop}
+
+                    </span>
+
+                    <span
+                      className={`rounded-full px-2 py-1 text-[10px] font-bold ${event.type === "planting"
+                        ? "bg-blue-500/10 text-blue-700"
+                        : "bg-green-500/10 text-green-700"
+                        }`}
+                    >
+
+                      {event.type}
+
+                    </span>
+
+                  </div>
+
+                  <p className="mt-2 text-sm">
+
+                    {event.title}
+
+                  </p>
+
+                  <p className="mt-2 text-xs text-muted-foreground">
+
+                    {event.date.toLocaleDateString()}
+
+                  </p>
+
+                  <p className="mt-1 text-xs text-muted-foreground">
+
+                    Status: {event.status}
+
+                  </p>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          ) : (
+
+            <div className="space-y-4">
+
+              <h4 className="font-bold">
+
+                Upcoming Events
+
+              </h4>
+
+              {events.slice(0, 6).map(event => (
+
+                <div
+                  key={`${event.crop}-${event.type}-${event.date}`}
+                  className="flex items-start gap-3 rounded-xl border bg-background p-3"
+                >
+
+                  {event.type === "planting" ? (
+
+                    <Sprout className="mt-0.5 h-4 w-4 text-blue-600" />
+
+                  ) : (
+
+                    <Award className="mt-0.5 h-4 w-4 text-green-600" />
+
+                  )}
+
+                  <div>
+
+                    <p className="text-sm font-semibold">
+
+                      {event.crop}
+
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+
+                      {event.title}
+
+                    </p>
+
+                    <p className="text-[11px] text-muted-foreground">
+
+                      {event.date.toLocaleDateString()}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+
       </div>
+
     </div>
   )
 }
