@@ -12,6 +12,8 @@ import {
   type CreateFarmPlanPayload,
   type CropLifecycleItem,
   type WaterScheduleItem,
+  type FarmAdviceRequest,
+  type FarmAdviceResponse,
 } from "../api/planner.api"
 
 import {
@@ -186,10 +188,13 @@ export function useFarmPlan() {
 // AI ADVICE
 // ======================================================
 
-export function useAIAdvice() {
-  return useMutation({
-    mutationFn: (payload: unknown) =>
-      plannerApi.getAIAdvice(payload),
+export function useFarmAdvice() {
+  return useMutation<
+    FarmAdviceResponse,
+    Error,
+    FarmAdviceRequest
+  >({
+    mutationFn: plannerApi.getFarmAdvice,
   })
 }
 

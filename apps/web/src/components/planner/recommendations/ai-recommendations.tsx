@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Sparkles,
   ArrowRight,
@@ -11,7 +11,13 @@ import {
   AlertCircle,
 } from "lucide-react"
 
-import { useRecommendations } from "@/features/planner/hooks/use-planner"
+import { useFarmAdvice } from "@/features/planner/hooks/use-planner"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 type Recommendation = {
   id: number
@@ -43,18 +49,38 @@ export default function AIRecommendations() {
   const [water, setWater] = useState("Medium")
 
   const {
-    data = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useRecommendations(
+    mutate,
+    data,
+    isPending,
+    error,
+  } = useFarmAdvice()
+
+  useEffect(() => {
+    if (!season || !sunlight || !water) return
+
+    mutate({
+      city: "Bengaluru",
+      crop_name: "Tomato",
+      garden_type: "Balcony",
+      garden_size: "Medium",
+      sunlight,
+      water_availability: water,
+      temperature: 28,
+      humidity: 65,
+      season,
+
+      experience_level: "Beginner",
+      goals: ["Healthy Food"],
+      preferred_crops: [],
+      avoid_crops: [],
+      organic_only: false,
+    })
+  }, [
     season,
     sunlight,
     water,
-  )
-
-  const recommendations =
-    data as Recommendation[]
+    mutate,
+  ])
 
   return (
     <div className="rounded-3xl border border-green-600/20 bg-card p-6 shadow-sm">
@@ -80,7 +106,24 @@ export default function AIRecommendations() {
         </div>
 
         <button
-          onClick={() => refetch()}
+          onClick={() => {
+            mutate({
+              city: "Bengaluru",
+              crop_name: "Tomato",
+              garden_type: "Balcony",
+              garden_size: "Medium",
+              sunlight,
+              water_availability: water,
+              temperature: 28,
+              humidity: 65,
+              season,
+              experience_level: "Beginner",
+              goals: ["Healthy Food"],
+              preferred_crops: [],
+              avoid_crops: [],
+              organic_only: false,
+            })
+          }}
           className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"
         >
           Refresh
@@ -165,7 +208,7 @@ export default function AIRecommendations() {
 
       {/* Loading */}
 
-      {isLoading && (
+      {isPending && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-green-600" />
         </div>
@@ -173,7 +216,7 @@ export default function AIRecommendations() {
 
       {/* Error */}
 
-      {!isLoading && isError && (
+      {!isPending && error && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <AlertCircle className="h-10 w-10 text-red-500 mb-3" />
           <h4 className="font-semibold">Unable to load recommendations</h4>
@@ -185,9 +228,9 @@ export default function AIRecommendations() {
 
       {/* Empty */}
 
-      {!isLoading &&
-        !isError &&
-        recommendations.length === 0 && (
+      {!isPending &&
+        !error &&
+        !data?.advice && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Leaf className="h-10 w-10 text-green-600 mb-3" />
             <h4 className="font-semibold">
@@ -200,94 +243,185 @@ export default function AIRecommendations() {
           </div>
         )}
 
-      {/* Cards */}
+      {/* Dashboard */}
 
-      {!isLoading &&
-        !isError &&
-        recommendations.length > 0 && (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {recommendations.map((crop) => (
-              <div
-                key={crop.id}
-                className="rounded-2xl border border-green-600/10 bg-background p-5 hover:border-green-500/30 transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
+      {!isPending &&
+        !error &&
+        data?.advice && (
+          <div className="mt-6 space-y-6">
+            {/* Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-green-600" />
+                  AI Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {data.advice.summary}
+                </p>
+              </CardContent>
+            </Card>
 
-                    <h4 className="font-bold text-lg">
-                      {crop.crop}
-                    </h4>
-
-                    <p className="text-xs text-muted-foreground">
-                      {crop.category}
-                    </p>
-
+            {/* Crops & Companions */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Leaf className="h-5 w-5 text-green-600" />
+                    Recommended Crops
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {data.advice.recommended_crops?.map((crop, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                      >
+                        {crop}
+                      </span>
+                    ))}
                   </div>
+                </CardContent>
+              </Card>
 
-                  <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-bold text-green-700">
-                    {crop.recommendation_score}%
-                  </span>
-                </div>
-
-                <div className="mt-5 space-y-3">
-
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Leaf className="h-4 w-4 text-green-600" />
-                      Difficulty
-                    </span>
-
-                    <span className="font-medium">
-                      {crop.difficulty}
-                    </span>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Leaf className="h-5 w-5 text-green-600" />
+                    Companion Plants
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {data.advice.companion_plants?.map((plant, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                      >
+                        {plant}
+                      </span>
+                    ))}
                   </div>
+                </CardContent>
+              </Card>
+            </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Sun className="h-4 w-4 text-amber-500" />
-                      Sunlight
-                    </span>
+            {/* Watering & Fertilizer */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Droplets className="h-5 w-5 text-blue-500" />
+                    Watering Schedule
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {data.advice.watering_strategy}
+                  </p>
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {data.advice.watering_schedule?.map((schedule, i) => (
+                      <li key={i}>{schedule}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
 
-                    <span className="font-medium">
-                      {crop.sunlight_requirement}
-                    </span>
-                  </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-amber-500" />
+                    Fertilizer Plan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {data.advice.fertilizer_plan}
+                  </p>
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {data.advice.fertilizer_schedule?.map((schedule, i) => (
+                      <li key={i}>{schedule}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Droplets className="h-4 w-4 text-blue-500" />
-                      Water
-                    </span>
+            {/* Harvest & Sustainability */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sun className="h-5 w-5 text-orange-500" />
+                    Harvest Timeline
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {data.advice.harvest_timeline}
+                  </p>
+                </CardContent>
+              </Card>
 
-                    <span className="font-medium">
-                      {crop.water_requirement}
-                    </span>
-                  </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Leaf className="h-5 w-5 text-green-600" />
+                    Sustainability Tips
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {data.advice.sustainability_tips?.map((tip, i) => (
+                      <li key={i}>{tip}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span>
-                      Harvest
-                    </span>
+            {/* Warnings & Next Actions */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                    Seasonal Warnings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {data.advice.seasonal_warnings?.map((warning, i) => (
+                      <li
+                        key={i}
+                        className="text-red-600/80 dark:text-red-400/80"
+                      >
+                        {warning}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
 
-                    <span className="font-semibold text-green-700">
-                      {crop.harvest_days} days
-                    </span>
-                  </div>
-
-                </div>
-
-                <div className="mt-5 border-t pt-4 flex items-center justify-between">
-
-                  <span className="text-xs text-muted-foreground">
-                    AI Match Score
-                  </span>
-
-                  <ArrowRight className="h-4 w-4 text-green-600" />
-
-                </div>
-
-              </div>
-            ))}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ArrowRight className="h-5 w-5 text-blue-500" />
+                    Next Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                    {data.advice.next_actions?.map((action, i) => (
+                      <li key={i}>{action}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       {/* Footer */}

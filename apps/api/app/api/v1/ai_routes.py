@@ -1,3 +1,4 @@
+import traceback
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.ai import (
@@ -24,9 +25,6 @@ def get_farm_advice(
 ):
     try:
         return service.get_farm_advice(payload)
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=str(e),
-        )
+    except Exception:
+        traceback.print_exc()
+        raise

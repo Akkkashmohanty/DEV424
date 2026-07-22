@@ -2,6 +2,47 @@ import { api } from "@/lib/axios/client"
 
 import { WeatherResponse } from "../types/weather.types"
 
+export interface FarmAdviceRequest {
+  city: string
+  crop_name: string
+  garden_type: string
+  garden_size: string
+  sunlight: string
+  water_availability: string
+  temperature: number
+  humidity: number
+  season: string
+
+  budget?: number
+  experience_level?: string
+  goals?: string[]
+  preferred_crops?: string[]
+  avoid_crops?: string[]
+  organic_only?: boolean
+}
+
+export interface FarmAdviceResponse {
+  advice: {
+    summary: string
+    why_this_crop: string
+    recommended_crops: string[]
+    companion_plants: string[]
+    watering_strategy: string
+    watering_schedule: string[]
+    fertilizer_plan: string
+    fertilizer_schedule: string[]
+    disease_prevention: string
+    harvesting_tips: string
+    harvest_timeline: string
+    estimated_yield: string
+    seasonal_warnings: string[]
+    sustainability_tips: string[]
+    next_actions: string[]
+    balcony_tips: string
+    common_mistakes: string[]
+  }
+}
+
 export interface CreateTaskPayload {
   title: string
   crop_name: string
@@ -274,15 +315,13 @@ export const plannerApi = {
   // AI
   // -----------------------------
 
-  async getAIAdvice(
-    payload: any,
-  ) {
-
-    const response =
-      await api.post(
-        "/ai/farm-advice",
-        payload,
-      )
+  async getFarmAdvice(
+    payload: FarmAdviceRequest,
+  ): Promise<FarmAdviceResponse> {
+    const response = await api.post(
+      "/ai/farm-advice",
+      payload,
+    )
 
     return response.data
   },

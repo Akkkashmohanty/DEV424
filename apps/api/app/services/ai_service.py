@@ -2,6 +2,7 @@ import json
 
 from google import genai
 from google.genai import types
+from google.genai.errors import ClientError
 
 from app.core.config import settings
 from app.schemas.ai import (
@@ -114,6 +115,18 @@ Return this exact JSON schema:
         except Exception:
             return {}
 
+    def _ensure_list(self, value):
+        if value is None:
+            return []
+
+        if isinstance(value, list):
+            return value
+
+        if isinstance(value, str):
+            return [value]
+
+        return []
+
     def get_farm_advice(
         self,
         request: FarmAdviceRequest,
@@ -123,19 +136,51 @@ Return this exact JSON schema:
             request,
         )
 
-        response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.4,
-            ),
-        )
+        print("Gemini API Key loaded:", bool(settings.GEMINI_API_KEY))
+        try:
+            response = self.client.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.4,
+                ),
+            )
+        except ClientError as e:
+            print(f"Gemini Error: {e}")
+        
+            result = {
+                "summary": "Unable to contact the AI service.",
+                "why_this_crop": "",
+                "recommended_crops": [],
+                "companion_plants": [],
+                "watering_strategy": "",
+                "watering_schedule": [],
+                "fertilizer_plan": "",
+                "fertilizer_schedule": [],
+                "disease_prevention": "",
+                "harvesting_tips": "",
+                "harvest_timeline": "",
+                "estimated_yield": "",
+                "seasonal_warnings": [],
+                "sustainability_tips": [],
+                "next_actions": [],
+                "balcony_tips": "",
+                "common_mistakes": [],
+            }
+        
+            advice = CropAdvice(
+                crop_name=request.crop_name,
+                **result,
+            )
+        
+            return FarmAdviceResponse(advice=advice)
+        print("Gemini response:", response.text)
 
         result = self._extract_json(response.text)
 
         if not result:
             response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
+                model=settings.GEMINI_MODEL,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.2,
@@ -166,46 +211,54 @@ Return this exact JSON schema:
 
         advice = CropAdvice(
             crop_name=request.crop_name,
-            summary=result.get(
-                "summary",
-                "",
+
+            summary=result.get("summary", ""),
+            why_this_crop=result.get("why_this_crop", ""),
+
+            recommended_crops=self._ensure_list(
+                result.get("recommended_crops")
             ),
-            why_this_crop=result.get(
-                "why_this_crop",
-                "",
+
+            companion_plants=self._ensure_list(
+                result.get("companion_plants")
             ),
-            recommended_crops=result.get("recommended_crops", []),
-            companion_plants=result.get("companion_plants", []),
-            watering_strategy=result.get(
-                "watering_strategy",
-                "",
+
+            watering_strategy=result.get("watering_strategy", ""),
+
+            watering_schedule=self._ensure_list(
+                result.get("watering_schedule")
             ),
-            watering_schedule=result.get("watering_schedule", []),
-            fertilizer_plan=result.get(
-                "fertilizer_plan",
-                "",
+
+            fertilizer_plan=result.get("fertilizer_plan", ""),
+
+            fertilizer_schedule=self._ensure_list(
+                result.get("fertilizer_schedule")
             ),
-            fertilizer_schedule=result.get("fertilizer_schedule", []),
-            disease_prevention=result.get(
-                "disease_prevention",
-                "",
-            ),
-            harvesting_tips=result.get(
-                "harvesting_tips",
-                "",
-            ),
+
+            disease_prevention=result.get("disease_prevention", ""),
+
+            harvesting_tips=result.get("harvesting_tips", ""),
+
             harvest_timeline=result.get("harvest_timeline", ""),
+
             estimated_yield=result.get("estimated_yield", ""),
-            seasonal_warnings=result.get("seasonal_warnings", []),
-            sustainability_tips=result.get("sustainability_tips", []),
-            next_actions=result.get("next_actions", []),
-            balcony_tips=result.get(
-                "balcony_tips",
-                "",
+
+            seasonal_warnings=self._ensure_list(
+                result.get("seasonal_warnings")
             ),
-            common_mistakes=result.get(
-                "common_mistakes",
-                [],
+
+            sustainability_tips=self._ensure_list(
+                result.get("sustainability_tips")
+            ),
+
+            next_actions=self._ensure_list(
+                result.get("next_actions")
+            ),
+
+            balcony_tips=result.get("balcony_tips", ""),
+
+            common_mistakes=self._ensure_list(
+                result.get("common_mistakes")
             ),
         )
 
