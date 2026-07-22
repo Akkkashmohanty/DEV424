@@ -11,7 +11,6 @@ from app.schemas.ai import (
     FarmAdviceResponse,
 )
 
-
 class AIService:
     def __init__(self):
         self.client = genai.Client(
