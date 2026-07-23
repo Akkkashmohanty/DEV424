@@ -11,6 +11,9 @@ from app.models.order_item import OrderItem
 from app.models.farm_plan import FarmPlan
 from app.models.farm_plan_crop import FarmPlanCrop
 
+from app.models.farm_activity import FarmActivity
+from app.models.user_farm_activity import UserFarmActivity
+
 from app.models.crop import Crop
 from app.models.crop_season import CropSeason
 from app.models.crop_task import CropTask
@@ -26,7 +29,9 @@ __all__ = [
     "OrderItem",
     "FarmPlan",
     "FarmPlanCrop",
+    "FarmActivity",
     "Crop",
     "CropSeason",
     "CropTask",
+    "UserFarmActivity",
 ]

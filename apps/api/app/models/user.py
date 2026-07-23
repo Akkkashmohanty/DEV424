@@ -92,3 +92,9 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    farm_activity_logs = relationship(
+        "UserFarmActivity",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

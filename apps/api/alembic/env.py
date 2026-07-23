@@ -21,6 +21,9 @@ import app.models.order_item
 import app.models.farm_plan
 import app.models.farm_plan_crop
 
+import app.models.farm_activity
+import app.models.user_farm_activity
+
 import app.models.crop
 import app.models.crop_season
 import app.models.crop_task

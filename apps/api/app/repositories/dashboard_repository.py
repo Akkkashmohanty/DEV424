@@ -1,4 +1,9 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
+
+from app.models.user_farm_activity import (
+    UserFarmActivity,
+)
 
 from app.models.task import Task
 from app.models.user import User
@@ -152,6 +157,54 @@ class DashboardRepository:
             .count()
         )
 
+        today_calories = (
+            self.db.query(
+                func.coalesce(
+                    func.sum(
+                        UserFarmActivity.calories_burned
+                    ),
+                    0,
+                )
+            )
+            .filter(
+                UserFarmActivity.user_id == user_id,
+                func.date(
+                    UserFarmActivity.completed_at
+                ) == func.current_date(),
+            )
+            .scalar()
+        )
+
+        total_calories = (
+            self.db.query(
+                func.coalesce(
+                    func.sum(
+                        UserFarmActivity.calories_burned
+                    ),
+                    0,
+                )
+            )
+            .filter(
+                UserFarmActivity.user_id == user_id,
+            )
+            .scalar()
+        )
+
+        total_farming_minutes = (
+            self.db.query(
+                func.coalesce(
+                    func.sum(
+                        UserFarmActivity.duration_minutes
+                    ),
+                    0,
+                )
+            )
+            .filter(
+                UserFarmActivity.user_id == user_id,
+            )
+            .scalar()
+        )
+
         return {
             "total_tasks": total_tasks,
             "completed_tasks": completed_tasks,
@@ -171,4 +224,7 @@ class DashboardRepository:
             "cancelled_orders": cancelled_orders,
             "total_inventory": total_inventory,
             "low_stock_products": low_stock_products,
+            "today_calories": today_calories,
+            "total_calories": total_calories,
+            "total_farming_minutes": total_farming_minutes,
         }

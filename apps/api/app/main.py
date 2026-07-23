@@ -53,6 +53,10 @@ from app.api.v1.ai_routes import (
     router as ai_router,
 )
 
+from app.api.v1.user_farm_activity_routes import (
+    router as user_farm_activity_router,
+)
+
 
 app = FastAPI(
     title="FarmGym API",
@@ -154,6 +158,10 @@ app.include_router(
     prefix="/api/v1",
 )
 
+app.include_router(
+    user_farm_activity_router,
+    prefix="/api/v1",
+)
 
 @app.get("/")
 def root():
